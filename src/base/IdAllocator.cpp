@@ -3,16 +3,16 @@
 
 IdAllocator::IdAllocator()
   : m_id_range_rules{
-        std::make_tuple(ShortccutType::SHORTCUT, 1, 1000),
-        std::make_tuple(ShortccutType::EMAIL_DEST, 1001, 2000),
-        std::make_tuple(ShortccutType::FTP_DEST, 2001, 3000),
-        std::make_tuple(ShortccutType::SMB_DEST, 3001, 4000),
+        std::make_tuple(ShortcutType::SHORTCUT, 1, 1000),
+        std::make_tuple(ShortcutType::EMAIL_DEST, 1001, 2000),
+        std::make_tuple(ShortcutType::FTP_DEST, 2001, 3000),
+        std::make_tuple(ShortcutType::SMB_DEST, 3001, 4000),
     }
 {
 }
 
 uint32_t
-IdAllocator::AllocateId(ShortccutType type, const std::vector<int>& used_ids)
+IdAllocator::GetAvailableId(ShortcutType type, const std::vector<int>& used_ids)
 {
     std::vector<IdRangeRule>::const_iterator it = std::find_if(
         m_id_range_rules.cbegin(),
