@@ -1,5 +1,5 @@
-#ifndef PAGE_RESULT_H
-#define PAGE_RESULT_H
+#ifndef PAGERESULT_H
+#define PAGERESULT_H
 
 #include <cstdint>
 #include <map>
@@ -7,7 +7,6 @@
 #include <vector>
 
 namespace shortcut {
-
 struct PageResult
 {
     std::vector<std::map<std::string, std::string>> rows{};
@@ -16,7 +15,6 @@ struct PageResult
     int32_t page_index{0};
     int32_t page_size{0};
 };
-
 }  // namespace shortcut
 
 #endif

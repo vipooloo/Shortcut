@@ -1,14 +1,38 @@
 #include "DbAccess.h"
+#include "ShortcutLogger.h"
+#include <SQLiteCpp/SQLiteCpp.h>
 #include <cinttypes>
-#include <cstdint>
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <sqlite3.h>
-#include <stdexcept>
-#include <string>
-
-#define LOG_ERROR(...)
-#define LOG_FORCE_ERROR(...)
 
 namespace shortcut {
+
+bool DbAccess::StrToInt32(const char* str, int32_t& out_val)
+{
+    out_val = 0;
+    if (!str || *str == '\0')
+    {
+        return false;
+    }
+
+    char* end = nullptr;
+    const long val = std::strtol(str, &end, 10);
+    if (end == str || *end != '\0')
+    {
+        return false;
+    }
+
+    if (val < INT32_MIN || val > INT32_MAX)
+    {
+        return false;
+    }
+
+    out_val = static_cast<int32_t>(val);
+    return true;
+}
 
 DbResult DbAccess::Init()
 {
@@ -17,42 +41,33 @@ DbResult DbAccess::Init()
 
     if (is_ok && m_db_path.empty())
     {
-        LOG_ERROR("Init: empty db path");
         result.SetCode(DbCode::INVALID_ARG);
         is_ok = false;
     }
 
     if (is_ok)
     {
-        try
+        m_db_ptr = std::unique_ptr<SQLite::Database>(
+            new SQLite::Database(
+                m_db_path,
+                SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE | SQLite::OPEN_NOFOLLOW));
+
+        if (!m_db_ptr)
         {
-            m_db_ptr.reset(new SQLite::Database(m_db_path,
-                                                SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE | SQLite::OPEN_NOFOLLOW));
-        }
-        catch (...)
-        {
-            LOG_ERROR("Init: open failed");
             result.SetCode(DbCode::IO_ERROR);
             is_ok = false;
         }
     }
 
-    if (is_ok && !m_db_ptr)
-    {
-        LOG_ERROR("Init: null ptr");
-        result.SetCode(DbCode::NOT_INIT);
-        is_ok = false;
-    }
-
     if (is_ok)
     {
-        ExecuteSql("PRAGMA journal_mode = DELETE;");
-        ExecuteSql("PRAGMA synchronous = FULL;");
-        ExecuteSql("PRAGMA auto_vacuum = FULL;");
-        ExecuteSql("PRAGMA temp_store = MEMORY;");
+        ExecuteSql(DB_SQL_JOURNAL_MODE);
+        ExecuteSql(DB_SQL_SYNCHRONOUS);
+        ExecuteSql(DB_SQL_AUTO_VACUUM);
+        ExecuteSql(DB_SQL_TEMP_STORE);
 
         int32_t cur_ver{0};
-        DbResult ver_ret{GetDBVersion(cur_ver)};
+        const DbResult ver_ret = GetDBVersion(cur_ver);
         if (!ver_ret.IsOk())
         {
             result.SetCode(ver_ret.GetCode());
@@ -60,7 +75,7 @@ DbResult DbAccess::Init()
         }
         else if (cur_ver < m_user_version && m_upgrade_callback)
         {
-            DbResult up_ret{m_upgrade_callback(cur_ver, m_user_version)};
+            const DbResult up_ret = m_upgrade_callback(cur_ver, m_user_version);
             if (!up_ret.IsOk())
             {
                 result.SetCode(up_ret.GetCode());
@@ -85,7 +100,6 @@ DbResult DbAccess::GetDBVersion(int32_t& out_version)
 {
     DbResult result{};
     bool is_ok{true};
-
     out_version = 0;
 
     if (is_ok && !m_db_ptr)
@@ -97,7 +111,7 @@ DbResult DbAccess::GetDBVersion(int32_t& out_version)
     if (is_ok)
     {
         std::vector<std::map<std::string, std::string>> rows{};
-        DbResult ret{QuerySql("PRAGMA user_version;", rows)};
+        const DbResult ret = QuerySql(DB_SQL_PRAGMA_USER_VERSION, rows);
         if (!ret.IsOk() || rows.empty())
         {
             result.SetCode(ret.GetCode());
@@ -105,15 +119,24 @@ DbResult DbAccess::GetDBVersion(int32_t& out_version)
         }
         else
         {
-            out_version = std::stoi(rows[0]["user_version"]);
-            result.SetCode(DbCode::OK);
+            const std::string& ver_str = rows[0]["user_version"];
+            int32_t val = 0;
+            if (!StrToInt32(ver_str.c_str(), val))
+            {
+                result.SetCode(DbCode::INVALID_DATA);
+            }
+            else
+            {
+                out_version = val;
+                result.SetCode(DbCode::OK);
+            }
         }
     }
 
     return result;
 }
 
-DbResult DbAccess::SetDBVersion(int32_t version)
+DbResult DbAccess::SetDBVersion(const int32_t version)
 {
     DbResult result{};
     bool is_ok{true};
@@ -126,10 +149,9 @@ DbResult DbAccess::SetDBVersion(int32_t version)
 
     if (is_ok)
     {
-        char sql[64]{};
-        snprintf(sql, sizeof(sql), "PRAGMA user_version = %" PRId32, version);
-        DbResult ret{ExecuteSql(sql)};
-        result = ret;
+        char sql[DB_SQL_BUF_SHORT] = {0};
+        (void)snprintf(sql, sizeof(sql), "PRAGMA user_version = %" PRId32, version);
+        result = ExecuteSql(sql);
     }
 
     return result;
@@ -159,13 +181,14 @@ DbResult DbAccess::ExecuteSql(const std::string& sql, const std::vector<std::str
 
     if (is_ok)
     {
-        SQLite::Statement stmt{*m_db_ptr, sql};
-        for (int32_t i{0}; i < static_cast<int32_t>(params.size()); ++i)
+        SQLite::Statement stmt(*m_db_ptr, sql);
+        const int32_t sz = static_cast<int32_t>(params.size());
+        for (int32_t i = 0; i < sz; ++i)
         {
             stmt.bind(static_cast<int>(i + 1), params[i]);
         }
 
-        int32_t ret{static_cast<int32_t>(stmt.tryExecuteStep())};
+        const int32_t ret = static_cast<int32_t>(stmt.tryExecuteStep());
         if (ret != SQLITE_OK && ret != SQLITE_DONE)
         {
             result.SetCode(DbCode::INVALID_SQL);
@@ -204,16 +227,17 @@ DbResult DbAccess::QuerySql(const std::string& sql, const std::vector<std::strin
 
     if (is_ok)
     {
-        SQLite::Statement stmt{*m_db_ptr, sql};
-        for (int32_t i{0}; i < static_cast<int32_t>(params.size()); ++i)
+        SQLite::Statement stmt(*m_db_ptr, sql);
+        const int32_t sz = static_cast<int32_t>(params.size());
+        for (int32_t i = 0; i < sz; ++i)
         {
             stmt.bind(static_cast<int>(i + 1), params[i]);
         }
 
-        int32_t col_count{static_cast<int32_t>(stmt.getColumnCount())};
+        const int32_t col_cnt = static_cast<int32_t>(stmt.getColumnCount());
         while (true)
         {
-            int32_t ret{static_cast<int32_t>(stmt.tryExecuteStep())};
+            const int32_t ret = static_cast<int32_t>(stmt.tryExecuteStep());
             if (ret == SQLITE_DONE)
             {
                 break;
@@ -226,9 +250,11 @@ DbResult DbAccess::QuerySql(const std::string& sql, const std::vector<std::strin
             }
 
             std::map<std::string, std::string> row{};
-            for (int32_t i{0}; i < col_count; ++i)
+            for (int32_t i = 0; i < col_cnt; ++i)
             {
-                row[stmt.getColumnName(i)] = stmt.getColumn(i).getString();
+                const std::string name = stmt.getColumnName(i);
+                const std::string val = stmt.getColumn(i).getString();
+                row[name] = val;
             }
             out_rows.push_back(row);
         }
@@ -244,22 +270,19 @@ DbResult DbAccess::QuerySql(const std::string& sql, const std::vector<std::strin
 
 DbResult DbAccess::BeginTransaction()
 {
-    return ExecuteSql("BEGIN TRANSACTION;");
+    return ExecuteSql(DB_SQL_BEGIN_TRANSACTION);
 }
 
 DbResult DbAccess::Commit()
 {
-    return ExecuteSql("COMMIT;");
+    return ExecuteSql(DB_SQL_COMMIT);
 }
 
 DbResult DbAccess::Rollback()
 {
-    return ExecuteSql("ROLLBACK;");
+    return ExecuteSql(DB_SQL_ROLLBACK);
 }
 
-// ==============================
-// 最终版：独立分页类 + 单return
-// ==============================
 DbResult DbAccess::QueryPageUniversal(const std::string& sql_main,
                                       const std::vector<std::string>& params,
                                       const PageQuery& page_query,
@@ -283,12 +306,11 @@ DbResult DbAccess::QueryPageUniversal(const std::string& sql_main,
 
     if (is_ok)
     {
-        char sql_count[512]{};
-        snprintf(sql_count, sizeof(sql_count), "SELECT COUNT(*) FROM (%s) AS t", sql_main.c_str());
+        char sql_count[DB_SQL_BUF_NORMAL] = {0};
+        (void)snprintf(sql_count, sizeof(sql_count), "SELECT COUNT(*) FROM (%s) AS t", sql_main.c_str());
 
         std::vector<std::map<std::string, std::string>> count_rows{};
-        DbResult count_ret{QuerySql(sql_count, params, count_rows)};
-
+        const DbResult count_ret = QuerySql(sql_count, params, count_rows);
         if (!count_ret.IsOk() || count_rows.empty())
         {
             result.SetCode(count_ret.GetCode());
@@ -296,33 +318,28 @@ DbResult DbAccess::QueryPageUniversal(const std::string& sql_main,
         }
         else
         {
-            int32_t total_count{0};
-            try
-            {
-                total_count = std::stoi(count_rows[0]["COUNT(*)"]);
-            }
-            catch (...)
+            int32_t total = 0;
+            const std::string& cnt_str = count_rows[0]["COUNT(*)"];
+            if (!StrToInt32(cnt_str.c_str(), total))
             {
                 result.SetCode(DbCode::INVALID_DATA);
                 is_ok = false;
             }
-
-            if (is_ok)
+            else
             {
-                int32_t total_page{(total_count + page_query.page_size - 1) / page_query.page_size};
-                int32_t offset{page_query.page_index * page_query.page_size};
-                const char* ord = page_query.order_type == DbOrderType::ASC ? "ASC" : "DESC";
+                const int32_t total_page = (total + page_query.page_size - 1) / page_query.page_size;
+                const int32_t offset = page_query.page_index * page_query.page_size;
+                const char* ord = (page_query.order_type == DbOrderType::ASC) ? "ASC" : "DESC";
 
-                char sql_data[1024]{};
-                snprintf(sql_data, sizeof(sql_data), "%s ORDER BY %s %s LIMIT ? OFFSET ?", sql_main.c_str(), page_query.sort_field.c_str(), ord);
+                char sql_data[DB_SQL_BUF_LONG] = {0};
+                (void)snprintf(sql_data, sizeof(sql_data), "%s ORDER BY %s %s LIMIT ? OFFSET ?", sql_main.c_str(), page_query.sort_field.c_str(), ord);
 
-                std::vector<std::string> page_params{params};
+                std::vector<std::string> page_params = params;
                 page_params.push_back(std::to_string(page_query.page_size));
                 page_params.push_back(std::to_string(offset));
 
                 std::vector<std::map<std::string, std::string>> data_rows{};
-                DbResult data_ret{QuerySql(sql_data, page_params, data_rows)};
-
+                const DbResult data_ret = QuerySql(sql_data, page_params, data_rows);
                 if (!data_ret.IsOk())
                 {
                     result.SetCode(data_ret.GetCode());
@@ -330,7 +347,7 @@ DbResult DbAccess::QueryPageUniversal(const std::string& sql_main,
                 else
                 {
                     out_result.rows = std::move(data_rows);
-                    out_result.total_count = total_count;
+                    out_result.total_count = total;
                     out_result.total_page = total_page;
                     out_result.page_index = page_query.page_index;
                     out_result.page_size = page_query.page_size;

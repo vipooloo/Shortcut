@@ -1,21 +1,18 @@
-#ifndef PAGE_QUERY_H
-#define PAGE_QUERY_H
+#ifndef PAGEQUERY_H
+#define PAGEQUERY_H
 
 #include "DbDefine.h"
 #include <cstdint>
 #include <string>
 
 namespace shortcut {
-
-// 独立分页查询入参，线程安全，无状态
 struct PageQuery
 {
     std::string sort_field{};
     DbOrderType order_type{DbOrderType::DESC};
-    int32_t page_index{0};
-    int32_t page_size{10};
+    int32_t page_index{static_cast<int32_t>(DB_PAGE_DEFAULT_INDEX)};
+    int32_t page_size{static_cast<int32_t>(DB_PAGE_DEFAULT_SIZE)};
 };
-
 }  // namespace shortcut
 
-#endif
+#endif  // PAGEQUERY_H

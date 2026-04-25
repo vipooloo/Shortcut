@@ -4,14 +4,13 @@
 #include <cstdint>
 
 namespace shortcut {
-
 enum class DbCode : int32_t
 {
     OK = 0,
     NOT_INIT = 1,
     INVALID_ARG = 2,
     INVALID_SQL = 3,
-    IO_ERROR = 4,  // 数据库IO错误
+    IO_ERROR = 4,
     CORRUPTED = 5,
     VERSION_ERR = 6,
     INVALID_DATA = 7
@@ -40,7 +39,6 @@ class DbResult
   private:
     DbCode m_code{DbCode::OK};
 };
-
 }  // namespace shortcut
 
 #endif  // DBRESULT_H
