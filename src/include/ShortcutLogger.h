@@ -54,5 +54,5 @@ static void logError(const char* format, ...)
 #define LOG_WARN(...) logWarn(__VA_ARGS__)
 #define LOG_ERROR(...) logError(__VA_ARGS__)
 #define LOG_WARNING(...) logWarn(__VA_ARGS__)
-#define LOG_FORCE_ERROR(...) logError(__VA_ARGS__)
+#define LOG_FORCE(...) logError(__VA_ARGS__)
 #endif  // SHORTCUTLOGGER_H

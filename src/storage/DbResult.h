@@ -7,22 +7,36 @@ namespace shortcut {
 enum class DbCode : int32_t
 {
     OK = 0,
-    NOT_INIT = 1,
-    INVALID_ARG = 2,
-    INVALID_SQL = 3,
-    IO_ERROR = 4,
-    CORRUPTED = 5,
-    VERSION_ERR = 6,
-    INVALID_DATA = 7
+    INTERNAL_ERROR,
+    IO_ERROR,
+    CORRUPTED,
+    VERSION_ERR,
+    INVALID_DATA,
 };
 
 class DbResult
 {
   public:
     DbResult();
-    void SetCode(DbCode code);
-    bool IsOk() const;
-    DbCode GetCode() const;
+    explicit DbResult(DbCode code)
+      : m_code{code}
+    {
+    }
+
+    bool IsOk() const
+    {
+        return (DbCode::OK == m_code);
+    }
+
+    void SetCode(DbCode code)
+    {
+        m_code = code;
+    }
+
+    DbCode GetCode() const
+    {
+        return m_code;
+    }
 
   private:
     DbCode m_code;

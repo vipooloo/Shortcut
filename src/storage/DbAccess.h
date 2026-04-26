@@ -28,18 +28,33 @@ class DbAccess
     DbAccess& operator=(DbAccess&&) = delete;
 
     DbResult Init();
-    DbResult GetDbVersion(int32_t& out_version);
-    DbResult SetDbVersion(int32_t version);
+    DbResult GetDbVersion(int64_t& out_version);
+    DbResult SetDbVersion(int64_t version);
 
-    DbResult ExecuteSql(const std::string& sql);
+    DbResult ExecuteSql(const std::string& sql)
+    {
+        return ExecuteSql(sql, std::vector<std::string>());
+    }
     DbResult ExecuteSql(const std::string& sql, const std::vector<std::string>& params);
 
-    DbResult QuerySql(const std::string& sql, DbRows& out_rows);
+    DbResult QuerySql(const std::string& sql, DbRows& out_rows)
+    {
+        return QuerySql(sql, std::vector<std::string>(), out_rows);
+    }
     DbResult QuerySql(const std::string& sql, const std::vector<std::string>& params, DbRows& out_rows);
 
-    DbResult BeginTransaction();
-    DbResult Commit();
-    DbResult Rollback();
+    DbResult BeginTransaction()
+    {
+        return ExecuteSql(DB_SQL_BEGIN_TRANSACTION);
+    }
+    DbResult Commit()
+    {
+        return ExecuteSql(DB_SQL_COMMIT);
+    }
+    DbResult Rollback()
+    {
+        return ExecuteSql(DB_SQL_ROLLBACK);
+    }
 
     DbResult QueryPageUniversal(const std::string& sql_main,
                                 const std::vector<std::string>& params,
@@ -47,28 +62,36 @@ class DbAccess
                                 PageResult& out_result,
                                 DbRows& out_rows);
 
-    void SetDbPath(const std::string& path);
-    void SetUserVersion(int32_t version);
+    void SetDbPath(const std::string& path)
+    {
+        m_db_path = path;
+    }
+    void SetUserVersion(int32_t version)
+    {
+        m_user_version = version;
+    }
 
-    using UpgradeCallback = std::function<DbResult(int32_t, int32_t)>;
-    void SetUpgradeCallback(const UpgradeCallback& cb);
+    using UpgradeCallback = std::function<DbResult(int64_t, int64_t)>;
+    void SetUpgradeCallback(const UpgradeCallback& cb)
+    {
+        m_upgrade_callback = cb;
+    }
 
   private:
-    static bool StrToInt32(const char* str, int32_t& out_val);
     static DbValue WrapColumnValue(const SQLite::Column& col);
     DbResult QueryTotalCount(const std::string& sql_main,
                              const std::vector<std::string>& params,
-                             int32_t& total);
+                             uint32_t& total);
     DbResult QueryPageData(const std::string& sql_main,
                            const std::vector<std::string>& params,
                            const PageQuery& page_query,
-                           int32_t total,
+                           uint32_t total,
                            PageResult& out_result,
                            DbRows& out_rows);
 
   private:
     std::string m_db_path;
-    int32_t m_user_version;
+    int64_t m_user_version;
     std::unique_ptr<SQLite::Database> m_db_ptr;
     UpgradeCallback m_upgrade_callback;
 };

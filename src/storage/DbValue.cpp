@@ -8,6 +8,40 @@ DbValue::DbValue()
   , m_data{}
 {
 }
+DbValue::DbValue(const DbValue& other)
+{
+    m_type = other.m_type;
+    m_data = other.m_data;
+}
+
+DbValue::DbValue(DbValue&& other) noexcept
+{
+    if (this != &other)
+    {
+        m_type = other.m_type;
+        m_data = std::move(other.m_data);
+    }
+}
+
+DbValue& DbValue::operator=(const DbValue& other)
+{
+    if (this != &other)
+    {
+        m_type = other.m_type;
+        m_data = other.m_data;
+    }
+    return *this;
+}
+
+DbValue& DbValue::operator=(DbValue&& other) noexcept
+{
+    if (this != &other)
+    {
+        m_type = other.m_type;
+        m_data = std::move(other.m_data);
+    }
+    return *this;
+}
 
 DbValue::DbValue(int32_t value)
   : m_type{DbValueType::Int32}
@@ -131,42 +165,36 @@ const std::vector<uint8_t>& DbValue::ToBlob() const
 DbValue::operator int32_t() const
 {
     bool result{false};
-    int32_t val = ToInt32(result);
-    return val;
+    return ToInt32(result);
 }
 
 DbValue::operator uint32_t() const
 {
     bool result{false};
-    uint32_t val = ToUint32(result);
-    return val;
+    return ToUint32(result);
 }
 
 DbValue::operator int64_t() const
 {
     bool result{false};
-    int64_t val = ToInt64(result);
-    return val;
+    return ToInt64(result);
 }
 
 DbValue::operator uint64_t() const
 {
     bool result{false};
-    uint64_t val = ToUint64(result);
-    return val;
+    return ToUint64(result);
 }
 
 DbValue::operator std::string() const
 {
     bool result{false};
-    std::string val = ToString(result);
-    return val;
+    return ToString(result);
 }
 
 DbValue::operator std::vector<uint8_t>() const
 {
-    std::vector<uint8_t> val = ToBlob();
-    return val;
+    return ToBlob();
 }
 
 DbValue::operator const std::vector<uint8_t>&() const
