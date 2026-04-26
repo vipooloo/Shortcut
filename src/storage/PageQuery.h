@@ -1,5 +1,5 @@
-#ifndef PAGEQUERY_H
-#define PAGEQUERY_H
+#ifndef PAGE_QUERY_H
+#define PAGE_QUERY_H
 
 #include "DbDefine.h"
 #include <cstdint>
@@ -8,11 +8,11 @@
 namespace shortcut {
 struct PageQuery
 {
-    std::string sort_field{};
-    DbOrderType order_type{DbOrderType::DESC};
-    int32_t page_index{static_cast<int32_t>(DB_PAGE_DEFAULT_INDEX)};
-    int32_t page_size{static_cast<int32_t>(DB_PAGE_DEFAULT_SIZE)};
+    std::string sort_field;
+    DbOrderType order_type;
+    int32_t page_index;
+    int32_t page_size;
 };
 }  // namespace shortcut
 
-#endif  // PAGEQUERY_H
+#endif

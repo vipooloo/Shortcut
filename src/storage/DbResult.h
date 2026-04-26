@@ -1,5 +1,5 @@
-#ifndef DBRESULT_H
-#define DBRESULT_H
+#ifndef DB_RESULT_H
+#define DB_RESULT_H
 
 #include <cstdint>
 
@@ -19,26 +19,14 @@ enum class DbCode : int32_t
 class DbResult
 {
   public:
-    DbResult() = default;
-
-    void SetCode(DbCode code)
-    {
-        m_code = code;
-    }
-
-    bool IsOk() const
-    {
-        return DbCode::OK == m_code;
-    }
-
-    DbCode GetCode() const
-    {
-        return m_code;
-    }
+    DbResult();
+    void SetCode(DbCode code);
+    bool IsOk() const;
+    DbCode GetCode() const;
 
   private:
-    DbCode m_code{DbCode::OK};
+    DbCode m_code;
 };
 }  // namespace shortcut
 
-#endif  // DBRESULT_H
+#endif
