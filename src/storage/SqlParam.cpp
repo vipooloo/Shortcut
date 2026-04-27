@@ -3,16 +3,8 @@
 
 namespace shortcut {
 
-SqlParam::SqlParam(int32_t value)
-  : m_type(Type::kInt32)
-  , m_bin_data()
-{
-    m_bin_data.resize(sizeof(int32_t));
-    std::memcpy(m_bin_data.data(), &value, sizeof(int32_t));
-}
-
 SqlParam::SqlParam(int64_t value)
-  : m_type(Type::kInt64)
+  : m_type(Type::kInt)
   , m_bin_data()
 {
     m_bin_data.resize(sizeof(int64_t));
@@ -24,6 +16,12 @@ SqlParam::SqlParam(const std::string& value)
   , m_bin_data()
 {
     m_bin_data.assign(value.begin(), value.end());
+}
+
+SqlParam::SqlParam(const std::vector<uint8_t>& value)
+  : m_type(Type::kBinary)
+  , m_bin_data(value)
+{
 }
 
 SqlParam::SqlParam(const SqlParam& other)

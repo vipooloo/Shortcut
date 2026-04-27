@@ -13,12 +13,9 @@ enum class DbOrderType : int32_t
 enum class DbValueType : int32_t
 {
     Null = 0,
-    Int32 = 1,
-    Uint32 = 2,
-    Int64 = 3,
-    Uint64 = 4,
-    String = 5,
-    Blob = 6
+    Int,
+    String,
+    Blob,
 };
 
 static constexpr uint32_t DB_SQL_BUF_SHORT = 64U;

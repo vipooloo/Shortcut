@@ -3,11 +3,13 @@
 #include <cstring>
 
 namespace shortcut {
+
 DbValue::DbValue()
   : m_type{DbValueType::Null}
   , m_data{}
 {
 }
+
 DbValue::DbValue(const DbValue& other)
 {
     m_type = other.m_type;
@@ -43,36 +45,12 @@ DbValue& DbValue::operator=(DbValue&& other) noexcept
     return *this;
 }
 
-DbValue::DbValue(int32_t value)
-  : m_type{DbValueType::Int32}
-  , m_data{}
-{
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
-    m_data.assign(p, p + sizeof(int32_t));
-}
-
-DbValue::DbValue(uint32_t value)
-  : m_type{DbValueType::Uint32}
-  , m_data{}
-{
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
-    m_data.assign(p, p + sizeof(uint32_t));
-}
-
 DbValue::DbValue(int64_t value)
-  : m_type{DbValueType::Int64}
+  : m_type{DbValueType::Int}
   , m_data{}
 {
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
     m_data.assign(p, p + sizeof(int64_t));
-}
-
-DbValue::DbValue(uint64_t value)
-  : m_type{DbValueType::Uint64}
-  , m_data{}
-{
-    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
-    m_data.assign(p, p + sizeof(uint64_t));
 }
 
 DbValue::DbValue(const std::string& value)
@@ -94,28 +72,41 @@ DbValue::DbValue(const uint8_t* data, uint32_t len)
 
 int32_t DbValue::ToInt32(bool& ok) const
 {
-    int32_t val{0};
+    int64_t val{0};
     ok = false;
 
-    if ((DbValueType::Int32 == m_type) && (sizeof(int32_t) == m_data.size()))
+    if (m_type == DbValueType::Int)
     {
-        std::memcpy(&val, m_data.data(), sizeof(int32_t));
+        std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
     }
-    return val;
+    return static_cast<int32_t>(val);
 }
 
 uint32_t DbValue::ToUint32(bool& ok) const
 {
-    uint32_t val{0U};
+    int64_t val{0};
     ok = false;
 
-    if ((DbValueType::Uint32 == m_type) && (sizeof(uint32_t) == m_data.size()))
+    if (m_type == DbValueType::Int)
     {
-        std::memcpy(&val, m_data.data(), sizeof(uint32_t));
+        std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
     }
-    return val;
+    return static_cast<uint32_t>(val);
+}
+
+uint64_t DbValue::ToUint64(bool& ok) const
+{
+    int64_t val{0};
+    ok = false;
+
+    if (m_type == DbValueType::Int)
+    {
+        std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
+        ok = true;
+    }
+    return static_cast<uint64_t>(val);
 }
 
 int64_t DbValue::ToInt64(bool& ok) const
@@ -123,22 +114,9 @@ int64_t DbValue::ToInt64(bool& ok) const
     int64_t val{0};
     ok = false;
 
-    if ((DbValueType::Int64 == m_type) && (sizeof(int64_t) == m_data.size()))
+    if (m_type == DbValueType::Int)
     {
-        std::memcpy(&val, m_data.data(), sizeof(int64_t));
-        ok = true;
-    }
-    return val;
-}
-
-uint64_t DbValue::ToUint64(bool& ok) const
-{
-    uint64_t val{0U};
-    ok = false;
-
-    if ((DbValueType::Uint64 == m_type) && (sizeof(uint64_t) == m_data.size()))
-    {
-        std::memcpy(&val, m_data.data(), sizeof(uint64_t));
+        std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
     }
     return val;

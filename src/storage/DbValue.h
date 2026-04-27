@@ -11,16 +11,14 @@ class DbValue
 {
   public:
     DbValue();
+    explicit DbValue(const std::string& value);
+    DbValue(const uint8_t* data, uint32_t len);
     DbValue(const DbValue& other);
     DbValue(DbValue&& other) noexcept;
     DbValue& operator=(const DbValue& other);
     DbValue& operator=(DbValue&& other) noexcept;
-    explicit DbValue(int32_t value);
-    explicit DbValue(uint32_t value);
+
     explicit DbValue(int64_t value);
-    explicit DbValue(uint64_t value);
-    explicit DbValue(const std::string& value);
-    DbValue(const uint8_t* data, uint32_t len);
     ~DbValue() = default;
 
     DbValueType GetType() const

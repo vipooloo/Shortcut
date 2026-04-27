@@ -10,9 +10,9 @@ namespace shortcut {
 class SqlParam
 {
   public:
-    explicit SqlParam(int32_t value);
     explicit SqlParam(int64_t value);
     explicit SqlParam(const std::string& value);
+    explicit SqlParam(const std::vector<uint8_t>& value);
 
     SqlParam(const SqlParam& other);
     SqlParam& operator=(const SqlParam& other);
@@ -24,9 +24,9 @@ class SqlParam
 
     enum class Type
     {
-        kInt32,
-        kInt64,
-        kString
+        kInt,
+        kString,
+        kBinary,
     };
 
     Type GetType() const

@@ -134,19 +134,13 @@ bool DbAccess::ExecuteSql(const std::string& sql, const std::vector<SqlParam>& p
         SQLite::Statement stmt(*m_db_ptr, sql);
         for (size_t i = 0; i < params.size(); ++i)
         {
-            int idx = static_cast<int>(i + 1);
+            int32_t idx = static_cast<int32_t>(i + 1);
             const SqlParam& param = params[i];
             const std::vector<uint8_t>& data = param.GetData();
 
             switch (param.GetType())
             {
-                case SqlParam::Type::kInt32:
-                {
-                    int32_t val = *reinterpret_cast<const int32_t*>(data.data());
-                    stmt.bind(idx, val);
-                    break;
-                }
-                case SqlParam::Type::kInt64:
+                case SqlParam::Type::kInt:
                 {
                     int64_t val = *reinterpret_cast<const int64_t*>(data.data());
                     stmt.bind(idx, val);
@@ -158,6 +152,14 @@ bool DbAccess::ExecuteSql(const std::string& sql, const std::vector<SqlParam>& p
                     stmt.bind(idx, val);
                     break;
                 }
+                case SqlParam::Type::kBinary:
+                {
+                    stmt.bind(idx, data.data(), data.size());
+                    break;
+                }
+                default:
+                    LOG_ERROR("DbAccess::ExecuteSql %s - unsupported param type:%d", sql.c_str(), static_cast<int32_t>(param.GetType()));
+                    break;
             }
         }
 
@@ -191,19 +193,13 @@ bool DbAccess::QuerySql(const std::string& sql, const std::vector<SqlParam>& par
         SQLite::Statement stmt(*m_db_ptr, sql);
         for (size_t i = 0; i < params.size(); ++i)
         {
-            int idx = static_cast<int>(i + 1);
+            int32_t idx = static_cast<int32_t>(i + 1);
             const SqlParam& param = params[i];
             const std::vector<uint8_t>& data = param.GetData();
 
             switch (param.GetType())
             {
-                case SqlParam::Type::kInt32:
-                {
-                    int32_t val = *reinterpret_cast<const int32_t*>(data.data());
-                    stmt.bind(idx, val);
-                    break;
-                }
-                case SqlParam::Type::kInt64:
+                case SqlParam::Type::kInt:
                 {
                     int64_t val = *reinterpret_cast<const int64_t*>(data.data());
                     stmt.bind(idx, val);
@@ -215,6 +211,14 @@ bool DbAccess::QuerySql(const std::string& sql, const std::vector<SqlParam>& par
                     stmt.bind(idx, val);
                     break;
                 }
+                case SqlParam::Type::kBinary:
+                {
+                    stmt.bind(idx, data.data(), data.size());
+                    break;
+                }
+                default:
+                    LOG_ERROR("DbAccess::QuerySql %s - unsupported param type:%d", sql.c_str(), static_cast<int32_t>(param.GetType()));
+                    break;
             }
         }
 
