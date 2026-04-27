@@ -82,13 +82,8 @@ bool DbAccess::Init()
                 result = false;
                 LOG_ERROR("DbAccess::Init() - failed to set db version");
             }
-            else
-            {
-                result = true;
-                LOG_ERROR("DbAccess::Init() - db upgrade success");
-                break;
-            }
         }
+        result = true;
     } while (false);
     if (result)
     {
