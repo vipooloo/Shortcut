@@ -1,7 +1,6 @@
 #ifndef DB_ACCESS_H
 #define DB_ACCESS_H
 
-#include "DbResult.h"
 #include "DbValue.h"
 #include "PageQuery.h"
 #include "PageResult.h"
@@ -27,40 +26,40 @@ class DbAccess
     DbAccess(DbAccess&&) = delete;
     DbAccess& operator=(DbAccess&&) = delete;
 
-    DbResult Init();
-    DbResult GetDbVersion(int64_t& out_version);
-    DbResult SetDbVersion(int64_t version);
+    bool Init();
+    bool GetDbVersion(int64_t& out_version);
+    bool SetDbVersion(int64_t version);
 
-    DbResult ExecuteSql(const std::string& sql)
+    bool ExecuteSql(const std::string& sql)
     {
         return ExecuteSql(sql, std::vector<std::string>());
     }
-    DbResult ExecuteSql(const std::string& sql, const std::vector<std::string>& params);
+    bool ExecuteSql(const std::string& sql, const std::vector<std::string>& params);
 
-    DbResult QuerySql(const std::string& sql, DbRows& out_rows)
+    bool QuerySql(const std::string& sql, DbRows& out_rows)
     {
         return QuerySql(sql, std::vector<std::string>(), out_rows);
     }
-    DbResult QuerySql(const std::string& sql, const std::vector<std::string>& params, DbRows& out_rows);
+    bool QuerySql(const std::string& sql, const std::vector<std::string>& params, DbRows& out_rows);
 
-    DbResult BeginTransaction()
+    bool BeginTransaction()
     {
         return ExecuteSql(DB_SQL_BEGIN_TRANSACTION);
     }
-    DbResult Commit()
+    bool Commit()
     {
         return ExecuteSql(DB_SQL_COMMIT);
     }
-    DbResult Rollback()
+    bool Rollback()
     {
         return ExecuteSql(DB_SQL_ROLLBACK);
     }
 
-    DbResult QueryPageUniversal(const std::string& sql_main,
-                                const std::vector<std::string>& params,
-                                const PageQuery& page_query,
-                                PageResult& out_result,
-                                DbRows& out_rows);
+    bool QueryPageUniversal(const std::string& sql_main,
+                            const std::vector<std::string>& params,
+                            const PageQuery& page_query,
+                            PageResult& out_result,
+                            DbRows& out_rows);
 
     void SetDbPath(const std::string& path)
     {
@@ -71,7 +70,7 @@ class DbAccess
         m_user_version = version;
     }
 
-    using UpgradeCallback = std::function<DbResult(int64_t, int64_t)>;
+    using UpgradeCallback = std::function<bool(int64_t, int64_t)>;
     void SetUpgradeCallback(const UpgradeCallback& cb)
     {
         m_upgrade_callback = cb;
@@ -79,15 +78,15 @@ class DbAccess
 
   private:
     static DbValue WrapColumnValue(const SQLite::Column& col);
-    DbResult QueryTotalCount(const std::string& sql_main,
-                             const std::vector<std::string>& params,
-                             uint32_t& total);
-    DbResult QueryPageData(const std::string& sql_main,
-                           const std::vector<std::string>& params,
-                           const PageQuery& page_query,
-                           uint32_t total,
-                           PageResult& out_result,
-                           DbRows& out_rows);
+    bool QueryTotalCount(const std::string& sql_main,
+                         const std::vector<std::string>& params,
+                         uint32_t& total);
+    bool QueryPageData(const std::string& sql_main,
+                       const std::vector<std::string>& params,
+                       const PageQuery& page_query,
+                       uint32_t total,
+                       PageResult& out_result,
+                       DbRows& out_rows);
 
   private:
     std::string m_db_path;
