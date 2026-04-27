@@ -84,7 +84,8 @@ bool DbAccess::Init()
             }
             else
             {
-                LOG_ERROR("DbAccess::Init() - upgrade failed");
+                result = true;
+                LOG_ERROR("DbAccess::Init() - db upgrade success");
                 break;
             }
         }
