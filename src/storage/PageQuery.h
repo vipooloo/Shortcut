@@ -14,63 +14,63 @@ class PageQuery
     {}
 
     PageQuery(const std::string& sortField, DbOrderType orderType, uint32_t pageIndex, uint32_t pageSize)
-      : m_sortField(sortField)
-      , m_orderType(orderType)
-      , m_pageIndex(pageIndex)
-      , m_pageSize(pageSize)
+      : m_sort_field(sortField)
+      , m_order_type(orderType)
+      , m_page_index(pageIndex)
+      , m_page_size(pageSize)
     {
     }
 
     std::string GetSortField() const
     {
-        return m_sortField;
+        return m_sort_field;
     }
 
     const char* GetSortFieldCStr() const
     {
-        return m_sortField.c_str();
+        return m_sort_field.c_str();
     }
 
     DbOrderType GetOrderType() const
     {
-        return m_orderType;
+        return m_order_type;
     }
 
     uint32_t GetPageIndex() const
     {
-        return m_pageIndex;
+        return m_page_index;
     }
 
     uint32_t GetPageSize() const
     {
-        return m_pageSize;
+        return m_page_size;
     }
 
     void SetSortField(const std::string& sortField)
     {
-        m_sortField = sortField;
+        m_sort_field = sortField;
     }
 
     void SetOrderType(DbOrderType orderType)
     {
-        m_orderType = orderType;
+        m_order_type = orderType;
     }
 
     void SetPageIndex(uint32_t pageIndex)
     {
-        m_pageIndex = pageIndex;
+        m_page_index = pageIndex;
     }
 
     void SetPageSize(uint32_t pageSize)
     {
-        m_pageSize = pageSize;
+        m_page_size = pageSize;
     }
 
   private:
-    std::string m_sortField;
-    DbOrderType m_orderType;
-    uint32_t m_pageIndex;
-    uint32_t m_pageSize;
+    std::string m_sort_field;
+    DbOrderType m_order_type;
+    uint32_t m_page_index;
+    uint32_t m_page_size;
 };
 }  // namespace shortcut
 

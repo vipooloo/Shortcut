@@ -68,7 +68,7 @@ bool DbAccess::Init()
             }
         }
         int64_t cur_ver = 0;
-        if (GetDbVersion(cur_ver))
+        if (!GetDbVersion(cur_ver))
         {
             LOG_ERROR("DbAccess::Init() - failed to get db version");
             break;
@@ -109,7 +109,7 @@ bool DbAccess::GetDbVersion(int64_t& out_version)
     result = QuerySql(DB_SQL_PRAGMA_USER_VERSION, rows);
     if (result && !rows.empty())
     {
-        out_version = rows[0].at("user_version").ToInt64(result);
+        out_version = rows[0]["user_version"].ToInt64(result);
     }
     return result;
 }
@@ -164,7 +164,7 @@ bool DbAccess::ExecuteSql(const std::string& sql, const std::vector<SqlParam>& p
         }
 
         int32_t ret = static_cast<int32_t>(stmt.tryExecuteStep());
-        if ((ret != SQLITE_OK) && (ret != SQLITE_DONE))
+        if ((ret != SQLITE_OK) && (ret != SQLITE_DONE) && (ret != SQLITE_ROW))
         {
             LOG_ERROR("DbAccess::ExecuteSql %s - execute failed, ret:%d", sql.c_str(), ret);
         }
@@ -297,7 +297,7 @@ bool DbAccess::QueryTotalCount(const std::string& sql_main,
     result = QuerySql(sql_count, params, count_rows);
     if (result && !count_rows.empty())
     {
-        int64_t ver_str = count_rows[0].at("COUNT(*)").ToInt64(result);
+        int64_t ver_str = count_rows[0]["COUNT(*)"].ToInt64(result);
         if (result)
         {
             total = static_cast<uint32_t>(ver_str);

@@ -11,12 +11,14 @@
 #define GREEN "\033[32m"
 
 // INFO 日志（支持 %d %s %f %x 等）
-static void logInfo(const char* format, ...)
+// 增加 file 和 line 参数
+static void logInfo(const char* file, int line, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    std::printf("%s[INFO]  ", GREEN);
+    // 打印颜色、级别、文件名和行号
+    std::printf("%s[INFO] [%s:%d]  ", GREEN, file, line);
     std::vprintf(format, args);
     std::printf("%s\n", NONE);
 
@@ -24,12 +26,12 @@ static void logInfo(const char* format, ...)
 }
 
 // WARN 日志
-static void logWarn(const char* format, ...)
+static void logWarn(const char* file, int line, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    std::printf("%s[WARN]  ", YELLOW);
+    std::printf("%s[WARN] [%s:%d]  ", YELLOW, file, line);
     std::vprintf(format, args);
     std::printf("%s\n", NONE);
 
@@ -37,22 +39,24 @@ static void logWarn(const char* format, ...)
 }
 
 // ERROR 日志
-static void logError(const char* format, ...)
+static void logError(const char* file, int line, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    std::fprintf(stderr, "%s[ERROR] ", RED);
+    std::fprintf(stderr, "%s[ERROR] [%s:%d] ", RED, file, line);
     std::vfprintf(stderr, format, args);
     std::fprintf(stderr, "%s\n", NONE);
 
     va_end(args);
 }
 
-// 对外使用的宏（和你原来一样）
-#define LOG_INFO(...) logInfo(__VA_ARGS__)
-#define LOG_WARN(...) logWarn(__VA_ARGS__)
-#define LOG_ERROR(...) logError(__VA_ARGS__)
-#define LOG_WARNING(...) logWarn(__VA_ARGS__)
-#define LOG_FORCE(...) logError(__VA_ARGS__)
+// 对外使用的宏
+// 在用户调用 LOG_INFO(...) 时，自动将当前的文件名和行号传给实际函数
+#define LOG_INFO(...) logInfo(__FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...) logWarn(__FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) logError(__FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING(...) logWarn(__FILE__, __LINE__, __VA_ARGS__)
+#define LOG_FORCE(...) logError(__FILE__, __LINE__, __VA_ARGS__)
+
 #endif  // SHORTCUTLOGGER_H

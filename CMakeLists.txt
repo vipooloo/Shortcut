@@ -8,6 +8,11 @@ project(ShortcutMgr)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 如果没有指定构建类型，则默认设置为 Debug
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
+endif()
+
 option(SQLITECPP_RUN_CPPCHECK OFF)
 # 你的第三方库根目录
 set(SQLITE_ROOT 
@@ -31,3 +36,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/include)
 
 add_subdirectory(src)
 add_subdirectory(third_party/SQLiteCpp)
+add_subdirectory(app)
