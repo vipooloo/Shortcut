@@ -30,8 +30,8 @@ static constexpr uint32_t DB_PAGE_DEFAULT_SIZE = 10U;
 
 static constexpr char DB_SQL_PRAGMA_USER_VERSION[] = "PRAGMA user_version;";
 static constexpr char DB_SQL_BEGIN_TRANSACTION[] = "BEGIN TRANSACTION;";
-static constexpr char DB_SQL_COMMIT[] = "COMMIT;";
-static constexpr char DB_SQL_ROLLBACK[] = "ROLLBACK;";
+static constexpr char DB_SQL_COMMIT_TRANSACTION[] = "COMMIT TRANSACTION;";
+static constexpr char DB_SQL_ROLLBACK_TRANSACTION[] = "ROLLBACK TRANSACTION;";
 static constexpr char DB_SQL_JOURNAL_MODE[] = "PRAGMA journal_mode = DELETE;";
 static constexpr char DB_SQL_SYNCHRONOUS[] = "PRAGMA synchronous = FULL;";
 static constexpr char DB_SQL_AUTO_VACUUM[] = "PRAGMA auto_vacuum = FULL;";
