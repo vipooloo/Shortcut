@@ -59,7 +59,13 @@ bool DbAccess::Init()
             break;
         }
         BeginTransaction();
-        const std::vector<std::string> pragmas = {DB_SQL_JOURNAL_MODE, DB_SQL_SYNCHRONOUS, DB_SQL_AUTO_VACUUM, DB_SQL_TEMP_STORE};
+        const std::vector<std::string> pragmas = {
+            DB_SQL_FOREIGN_KEYS,  ///<
+            DB_SQL_JOURNAL_MODE,  ///<
+            DB_SQL_SYNCHRONOUS,   ///<
+            DB_SQL_AUTO_VACUUM,   ///<
+            DB_SQL_TEMP_STORE     ///<
+        };
         for (const std::string& pragma : pragmas)
         {
             if (ExecuteSql(pragma))
