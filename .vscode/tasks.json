@@ -1,0 +1,21 @@
+{
+    "tasks": [
+        {
+            "label": "CMake编译",
+            "type": "shell",
+            "command": "cd ${workspaceFolder} && mkdir -p build && cd build && cmake .. && make -j10",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}/build/app/"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
