@@ -8,13 +8,17 @@ file(GLOB_RECURSE SRC_FILES
 # 生成可执行文件（自动包含所有找到的源码）
 add_library(${PROJECT_NAME} STATIC ${SRC_FILES})
 
-# 递归查找当前目录下 所有名字为 "include" 的文件夹
-file(GLOB_RECURSE ALL_INCLUDE_FOLDERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/include
-)
+# 获取所有子目录
+file(GLOB_RECURSE _SUB_DIRS LIST_DIRECTORIES true ${CMAKE_CURRENT_SOURCE_DIR}/*)
 
-# 把所有找到的 include 目录添加到头文件搜索路径
-include_directories(${ALL_INCLUDE_FOLDERS})
+# 只添加目录
+foreach(_DIR ${_SUB_DIRS})
+    if(IS_DIRECTORY ${_DIR})
+        include_directories(${_DIR})
+    endif()
+endforeach()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # 添加链接库
 target_link_libraries(${PROJECT_NAME} SQLiteCpp)

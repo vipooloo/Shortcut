@@ -1,11 +1,12 @@
-#include "DbAccess.h"
-#include "ShortcutLogger.h"
+#include "JobScDbAccess.h"
+#include "JobScLogger.h"
 #include <iostream>
 
 static constexpr const char* sql = R"(
     CREATE TABLE IF NOT EXISTS shortcut (
         rid            INTEGER PRIMARY KEY,
         account_id     INTEGER,
+        job_type       INTEGER,
         description    TEXT    NOT NULL,
         settings       TEXT,
         address_list   TEXT,
@@ -24,7 +25,7 @@ static constexpr const char* sql = R"(
 
 int main(int argc, char* argv[])
 {
-    shortcut::DbAccess db_access;
+    JobScDbAccess db_access;
     db_access.SetDbPath("test.db");
     db_access.SetUserVersion(1);
     db_access.SetUpgradeCallback([&](int64_t old_ver, int64_t new_ver) -> bool {
