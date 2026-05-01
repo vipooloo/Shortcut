@@ -286,21 +286,6 @@ void JobScDbAccess::RollbackTransaction()
     ExecuteSql(DB_SQL_ROLLBACK_TRANSACTION);
 }
 
-void JobScDbAccess::SetDbPath(const std::string& path)
-{
-    m_db_path = path;
-}
-
-void JobScDbAccess::SetUserVersion(int32_t version)
-{
-    m_user_version = version;
-}
-
-void JobScDbAccess::SetUpgradeCallback(const UpgradeCallback& cb)
-{
-    m_upgrade_callback = cb;
-}
-
 bool JobScDbAccess::QueryTotalCount(const std::string& sql_main,
                                     const std::vector<JobScDbValue>& params,
                                     uint32_t& total)

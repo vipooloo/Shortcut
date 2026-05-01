@@ -12,6 +12,7 @@
 
 using JobScRow = std::map<std::string, JobScDbValue>;
 using JobScRowList = std::vector<JobScRow>;
+using UpgradeCallback = std::function<bool(int64_t, int64_t)>;
 
 class JobScDbAccess
 {
@@ -19,12 +20,19 @@ class JobScDbAccess
     JobScDbAccess();
     ~JobScDbAccess() = default;
 
-    JobScDbAccess(const JobScDbAccess&) = delete;
-    JobScDbAccess& operator=(const JobScDbAccess&) = delete;
-    JobScDbAccess(JobScDbAccess&&) = delete;
-    JobScDbAccess& operator=(JobScDbAccess&&) = delete;
-
     bool Init();
+    void SetDbPath(const std::string& path)
+    {
+        m_db_path = path;
+    }
+    void SetUserVersion(int32_t version)
+    {
+        m_user_version = version;
+    }
+    void SetUpgradeCallback(const UpgradeCallback& cb)
+    {
+        m_upgrade_callback = cb;
+    }
 
     bool ExecuteSql(const std::string& sql);
     bool ExecuteSql(const std::string& sql, const std::vector<JobScDbValue>& params);
@@ -43,13 +51,11 @@ class JobScDbAccess
                             JobScPageResult& out_result,
                             JobScRowList& out_rows);
 
-    void SetDbPath(const std::string& path);
-    void SetUserVersion(int32_t version);
-
-    using UpgradeCallback = std::function<bool(int64_t, int64_t)>;
-    void SetUpgradeCallback(const UpgradeCallback& cb);
-
   private:
+    JobScDbAccess(const JobScDbAccess&) = delete;
+    JobScDbAccess& operator=(const JobScDbAccess&) = delete;
+    JobScDbAccess(JobScDbAccess&&) = delete;
+    JobScDbAccess& operator=(JobScDbAccess&&) = delete;
     bool GetDbVersion(int64_t& out_version);
     bool SetDbVersion(int64_t version);
     static JobScDbValue WrapColumnValue(const SQLite::Column& col);

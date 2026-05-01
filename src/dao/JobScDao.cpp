@@ -9,9 +9,9 @@ JobScDao::JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr)
 {
 }
 
-bool JobScDao::Insert(uint64_t account_id, const JobScRow& entity, int64_t& out_id)
+bool JobScDao::Insert(uint64_t account_id, const JobScRow& row_data, int64_t& out_id)
 {
-    bool success = false;
+    bool result = false;
     do
     {
         if (!m_db_ptr)
@@ -24,19 +24,9 @@ bool JobScDao::Insert(uint64_t account_id, const JobScRow& entity, int64_t& out_
             kFieldDescription,
             kFieldSettings,
             kFieldAddressList};
-        bool all_fields_exist = true;
-        for (size_t i = 0; i < required_fields.size(); ++i)
+        if (!CheckRequiredFields(row_data, required_fields))
         {
-            const std::string& field = required_fields[i];
-            if (entity.find(field) == entity.cend())
-            {
-                JOBSC_LOG_ERROR("JobScDao::Insert - missing required field: %s", field.c_str());
-                all_fields_exist = false;
-                break;
-            }
-        }
-        if (!all_fields_exist)
-        {
+            JOBSC_LOG_ERROR("JobScDao::Insert - missing required fields");
             break;
         }
         std::string sql = "INSERT INTO " + std::string(kTableName) +
@@ -53,187 +43,141 @@ bool JobScDao::Insert(uint64_t account_id, const JobScRow& entity, int64_t& out_
         for (size_t i = 0; i < required_fields.size(); ++i)
         {
             const std::string& field = required_fields[i];
-            params.push_back(entity.at(field));
+            params.push_back(row_data.at(field));
         }
-        success = m_db_ptr->ExecuteSql(sql, params);
-        if (!success)
+        result = m_db_ptr->ExecuteSql(sql, params);
+        if (!result)
         {
             JOBSC_LOG_ERROR("JobScDao::Insert - execute sql failed");
             break;
         }
         out_id = m_db_ptr->GetLastInsertRowId();
     } while (false);
-    return success;
+    return result;
 }
 
-// bool JobScDao::Update(const JobScRow& entity)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
+bool JobScDao::Delete(int64_t rid)
+{
+    bool result{false};
+    if (m_db_ptr)
+    {
+        std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE rid=?";
+        std::vector<JobScDbValue> params;
+        params.emplace_back(rid);
+        result = m_db_ptr->ExecuteSql(sql, params);
+        if (!result)
+        {
+            JOBSC_LOG_ERROR("JobScDao::Delete - execute sql failed");
+        }
+    }
+    else
+    {
+        JOBSC_LOG_ERROR("JobScDao::Delete - database not initialized");
+    }
+    return result;
+}
 
-//     auto it = entity.find("id");
-//     if (it == entity.end())
-//     {
-//         JOB_SC_LOG_ERROR("Update: id not found");
-//         return false;
-//     }
+bool JobScDao::DeleteByType(JobScType type)
+{
+    bool result{false};
+    if (m_db_ptr)
+    {
+        std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+        std::vector<JobScDbValue> params;
+        params.emplace_back(static_cast<int64_t>(type));
+        result = m_db_ptr->ExecuteSql(sql, params);
+        if (!result)
+        {
+            JOBSC_LOG_ERROR("JobScDao::DeleteByType - execute sql failed");
+        }
+    }
+    else
+    {
+        JOBSC_LOG_ERROR("JobScDao::DeleteByType - database not initialized");
+    }
+    return result;
+}
 
-//     std::string sql = "UPDATE " + kTableName + " SET name=?, type=?, content=?, updated_at=? WHERE id=?";
-//     std::vector<JobScDbValue> params;
+bool JobScDao::Update(int64_t rid, const JobScRow& row_data)
+{
+    bool result{false};
+    do
+    {
+        if (!m_db_ptr)
+        {
+            JOBSC_LOG_ERROR("JobScDao::Update - database not initialized");
+            break;
+        }
+        const std::vector<std::string> required_fields = {
+            kFieldJobType,
+            kFieldDescription,
+            kFieldSettings,
+            kFieldAddressList};
+        if (CheckRequiredFields(row_data, required_fields))
+        {
+            JOBSC_LOG_ERROR("JobScDao::Update - missing required fields");
+            break;
+        }
+        std::string sql = "UPDATE " + std::string(kTableName) + " SET " +
+                          kFieldJobType + "=?, " +
+                          kFieldDescription + "=?, " +
+                          kFieldSettings + "=?, " +
+                          kFieldAddressList + "=? " +
+                          "WHERE rid=?";
 
-//     auto name_it = entity.find("name");
-//     if (name_it != entity.end())
-//     {
-//         params.push_back(JobScDbValue(name_it->second.ToString()));
-//     }
-//     else
-//     {
-//         params.push_back(JobScDbValue(std::string("")));
-//     }
+        std::vector<JobScDbValue> params;
+        params.reserve(5);
+        for (size_t i = 0; i < required_fields.size(); ++i)
+        {
+            const std::string& field = required_fields[i];
+            params.push_back(row_data.at(field));
+        }
+        params.emplace_back(rid);
+        result = m_db_ptr->ExecuteSql(sql, params);
+        if (!result)
+        {
+            JOBSC_LOG_ERROR("JobScDao::Update - execute sql failed");
+        }
+    } while (false);
+    return result;
+}
 
-//     auto type_it = entity.find("type");
-//     if (type_it != entity.end())
-//     {
-//         params.push_back(JobScDbValue(static_cast<int32_t>(type_it->second)));
-//     }
-//     else
-//     {
-//         params.push_back(JobScDbValue(static_cast<int32_t>(0)));
-//     }
+bool JobScDao::CheckRequiredFields(
+    const JobScRow& row_data,
+    const std::vector<std::string>& required_fields)
+{
+    bool all_fields_exist = true;
+    for (size_t i = 0; i < required_fields.size(); ++i)
+    {
+        const std::string& field = required_fields[i];
+        if (row_data.find(field) == row_data.cend())
+        {
+            JOBSC_LOG_ERROR("JobScDao::CheckRequiredFields - missing required field: %s", field.c_str());
+            all_fields_exist = false;
+            break;
+        }
+    }
+    return all_fields_exist;
+}
 
-//     auto content_it = entity.find("content");
-//     if (content_it != entity.end())
-//     {
-//         params.push_back(content_it->second);
-//     }
-//     else
-//     {
-//         params.push_back(JobScDbValue(std::vector<uint8_t>{}));
-//     }
-
-//     int64_t now = 0;
-//     params.push_back(JobScDbValue(now));
-//     params.push_back(it->second);
-
-//     return m_db_ptr->ExecuteSql(sql, params);
-// }
-
-// bool JobScDao::Delete(int64_t id)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "DELETE FROM " + kTableName + " WHERE id=?";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue(id));
-
-//     return m_db_ptr->ExecuteSql(sql, params);
-// }
-
-// bool JobScDao::GetById(int64_t id, JobScRow& out_entity)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " WHERE id=?";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue(id));
-
-//     JobScRowList rows;
-//     if (!m_db_ptr->QuerySql(sql, params, rows))
-//     {
-//         return false;
-//     }
-
-//     if (!rows.empty())
-//     {
-//         out_entity = rows.front();
-//         return true;
-//     }
-
-//     return false;
-// }
-
-// bool JobScDao::GetList(JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " ORDER BY updated_at DESC";
-//     return m_db_ptr->QuerySql(sql, out_list);
-// }
-
-// bool JobScDao::GetListPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName;
-//     return m_db_ptr->QueryPageUniversal(sql, {}, page_query, out_result, out_list);
-// }
-
-// bool JobScDao::GetListByType(ShortcutType type, JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " WHERE type=? ORDER BY updated_at DESC";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue(static_cast<int32_t>(type)));
-
-//     return m_db_ptr->QuerySql(sql, params, out_list);
-// }
-
-// bool JobScDao::GetListByTypePage(ShortcutType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " WHERE type=?";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue(static_cast<int32_t>(type)));
-
-//     return m_db_ptr->QueryPageUniversal(sql, params, page_query, out_result, out_list);
-// }
-
-// bool JobScDao::GetListByName(const std::string& name, JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " WHERE name LIKE ? ORDER BY updated_at DESC";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue("%" + name + "%"));
-
-//     return m_db_ptr->QuerySql(sql, params, out_list);
-// }
-
-// bool JobScDao::GetListByNamePage(const std::string& name, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
-// {
-//     if (!m_db_ptr)
-//     {
-//         return false;
-//     }
-
-//     std::string sql = "SELECT * FROM " + kTableName + " WHERE name LIKE ?";
-//     std::vector<JobScDbValue> params;
-//     params.push_back(JobScDbValue("%" + name + "%"));
-
-//     return m_db_ptr->QueryPageUniversal(sql, params, page_query, out_result, out_list);
-// }
+bool JobScDao::GetListByTypePage(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+{
+    bool result{false};
+    do
+    {
+        if (!m_db_ptr)
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - database not initialized");
+            break;
+        }
+        std::string sql_main = "SELECT * FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+        std::vector<JobScDbValue> params;
+        params.emplace_back(static_cast<int64_t>(type));
+        result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
+        if (!result)
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - execute sql failed");
+        }
+    } while (false);
+    return result;
+}

@@ -2,7 +2,7 @@
 #define JOBSCDAO_H
 
 #include "JobScDbAccess.h"
-#include "ShortcutType.h"
+#include "JobScType.h"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -20,18 +20,19 @@ class JobScDao
     explicit JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr);
     ~JobScDao() = default;
 
-    bool Insert(uint64_t account_id, const JobScRow& entity, int64_t& out_id);
-    // bool Update(const JobScRow& entity);
-    // bool Delete(int64_t id);
+    bool Insert(uint64_t account_id, const JobScRow& row_data, int64_t& out_id);
+    bool Delete(int64_t rid);
+    bool DeleteByType(JobScType type);
+    bool Update(int64_t rid, const JobScRow& row_data);
 
-    // bool GetById(int64_t id, JobScRow& out_entity);
-    // bool GetList(JobScRowList& out_list);
-    // bool GetListPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
-    // bool GetListByType(ShortcutType type, JobScRowList& out_list);
-    // bool GetListByTypePage(ShortcutType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool GetListByTypePage(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
 
     // bool GetListByName(const std::string& name, JobScRowList& out_list);
     // bool GetListByNamePage(const std::string& name, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+  private:
+    bool CheckRequiredFields(
+        const JobScRow& row_data,
+        const std::vector<std::string>& required_fields);
 
   private:
     std::shared_ptr<JobScDbAccess> m_db_ptr;
