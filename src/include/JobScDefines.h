@@ -9,13 +9,13 @@ enum class JobScOrderType : int32_t
     DESC = 1
 };
 
-struct PageResult
+typedef struct JobScPageResult
 {
     uint32_t total_count;
     uint32_t total_page;
     uint32_t page_index;
     uint32_t page_size;
-};
+} JOBSCPAGERESULT_S;
 
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_INDEX = 0U;
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_SIZE = 10U;

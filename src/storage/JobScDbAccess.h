@@ -3,7 +3,6 @@
 
 #include "JobScDbPageQuery.h"
 #include "JobScDbValue.h"
-#include "JobScDbValue.h"
 #include <SQLiteCpp/SQLiteCpp.h>
 #include <functional>
 #include <map>
@@ -11,8 +10,8 @@
 #include <string>
 #include <vector>
 
-using JobScEntity = std::map<std::string, JobScDbValue>;
-using JobScEntityList = std::vector<JobScEntity>;
+using JobScRow = std::map<std::string, JobScDbValue>;
+using JobScRowList = std::vector<JobScRow>;
 
 class JobScDbAccess
 {
@@ -29,9 +28,10 @@ class JobScDbAccess
 
     bool ExecuteSql(const std::string& sql);
     bool ExecuteSql(const std::string& sql, const std::vector<JobScDbValue>& params);
+    int64_t GetLastInsertRowId();
 
-    bool QuerySql(const std::string& sql, JobScEntityList& out_rows);
-    bool QuerySql(const std::string& sql, const std::vector<JobScDbValue>& params, JobScEntityList& out_rows);
+    bool QuerySql(const std::string& sql, JobScRowList& out_rows);
+    bool QuerySql(const std::string& sql, const std::vector<JobScDbValue>& params, JobScRowList& out_rows);
 
     void BeginTransaction();
     void CommitTransaction();
@@ -40,8 +40,8 @@ class JobScDbAccess
     bool QueryPageUniversal(const std::string& sql_main,
                             const std::vector<JobScDbValue>& params,
                             const JobScDbPageQuery& page_query,
-                            PageResult& out_result,
-                            JobScEntityList& out_rows);
+                            JobScPageResult& out_result,
+                            JobScRowList& out_rows);
 
     void SetDbPath(const std::string& path);
     void SetUserVersion(int32_t version);
@@ -60,8 +60,8 @@ class JobScDbAccess
                        const std::vector<JobScDbValue>& params,
                        const JobScDbPageQuery& page_query,
                        uint32_t total,
-                       PageResult& out_result,
-                       JobScEntityList& out_rows);
+                       JobScPageResult& out_result,
+                       JobScRowList& out_rows);
 
   private:
     std::string m_db_path;

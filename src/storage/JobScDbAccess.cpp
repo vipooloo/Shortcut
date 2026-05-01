@@ -116,7 +116,7 @@ bool JobScDbAccess::Init()
 bool JobScDbAccess::GetDbVersion(int64_t& out_version)
 {
     bool result{false};
-    JobScEntityList rows;
+    JobScRowList rows;
     result = QuerySql(DB_SQL_PRAGMA_USER_VERSION, rows);
     if (result && !rows.empty())
     {
@@ -147,24 +147,24 @@ bool JobScDbAccess::ExecuteSql(const std::string& sql, const std::vector<JobScDb
         {
             int32_t idx = static_cast<int32_t>(i + 1);
             const JobScDbValue& param = params[i];
-            const std::vector<uint8_t>& data = param.ToBlob();
 
             switch (param.GetType())
             {
                 case JobScDbValType::Int:
                 {
-                    int64_t val = *reinterpret_cast<const int64_t*>(data.data());
+                    int64_t val = param;
                     stmt.bind(idx, val);
                     break;
                 }
                 case JobScDbValType::String:
                 {
-                    std::string val(reinterpret_cast<const char*>(data.data()), data.size());
+                    std::string val = param;
                     stmt.bind(idx, val);
                     break;
                 }
                 case JobScDbValType::Blob:
                 {
+                    const std::vector<uint8_t>& data = param;
                     stmt.bind(idx, data.data(), data.size());
                     break;
                 }
@@ -191,12 +191,17 @@ bool JobScDbAccess::ExecuteSql(const std::string& sql, const std::vector<JobScDb
     return result;
 }
 
-bool JobScDbAccess::QuerySql(const std::string& sql, JobScEntityList& out_rows)
+bool JobScDbAccess::QuerySql(const std::string& sql, JobScRowList& out_rows)
 {
     return QuerySql(sql, std::vector<JobScDbValue>(), out_rows);
 }
 
-bool JobScDbAccess::QuerySql(const std::string& sql, const std::vector<JobScDbValue>& params, JobScEntityList& out_rows)
+int64_t JobScDbAccess::GetLastInsertRowId()
+{
+    return m_db_ptr ? m_db_ptr->getLastInsertRowid() : 0;
+}
+
+bool JobScDbAccess::QuerySql(const std::string& sql, const std::vector<JobScDbValue>& params, JobScRowList& out_rows)
 {
     bool result{false};
     if (m_db_ptr && !sql.empty() && out_rows.empty())
@@ -206,24 +211,24 @@ bool JobScDbAccess::QuerySql(const std::string& sql, const std::vector<JobScDbVa
         {
             int32_t idx = static_cast<int32_t>(i + 1);
             const JobScDbValue& param = params[i];
-            const std::vector<uint8_t>& data = param.ToBlob();
 
             switch (param.GetType())
             {
                 case JobScDbValType::Int:
                 {
-                    int64_t val = *reinterpret_cast<const int64_t*>(data.data());
+                    int64_t val = param;
                     stmt.bind(idx, val);
                     break;
                 }
                 case JobScDbValType::String:
                 {
-                    std::string val(reinterpret_cast<const char*>(data.data()), data.size());
+                    std::string val = param;
                     stmt.bind(idx, val);
                     break;
                 }
                 case JobScDbValType::Blob:
                 {
+                    const std::vector<uint8_t>& data = param;
                     stmt.bind(idx, data.data(), data.size());
                     break;
                 }
@@ -250,7 +255,7 @@ bool JobScDbAccess::QuerySql(const std::string& sql, const std::vector<JobScDbVa
                 break;
             }
 
-            JobScEntity row;
+            JobScRow row;
             for (int32_t i = 0; i < col_cnt; ++i)
             {
                 std::string name{stmt.getColumnName(i)};
@@ -304,7 +309,7 @@ bool JobScDbAccess::QueryTotalCount(const std::string& sql_main,
     char sql_count[DB_SQL_BUFFER] = {0};
 
     snprintf(sql_count, sizeof(sql_count), "SELECT COUNT(*) FROM (%s) AS t", sql_main.c_str());
-    JobScEntityList count_rows;
+    JobScRowList count_rows;
     result = QuerySql(sql_count, params, count_rows);
     if (result && !count_rows.empty())
     {
@@ -321,8 +326,8 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
                                   const std::vector<JobScDbValue>& params,
                                   const JobScDbPageQuery& page_query,
                                   uint32_t total,
-                                  PageResult& out_result,
-                                  JobScEntityList& out_rows)
+                                  JobScPageResult& out_result,
+                                  JobScRowList& out_rows)
 {
     bool result{false};
     uint32_t page_size{page_query.GetPageSize()};
@@ -362,8 +367,8 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
 bool JobScDbAccess::QueryPageUniversal(const std::string& sql_main,
                                        const std::vector<JobScDbValue>& params,
                                        const JobScDbPageQuery& page_query,
-                                       PageResult& out_result,
-                                       JobScEntityList& out_rows)
+                                       JobScPageResult& out_result,
+                                       JobScRowList& out_rows)
 {
     bool result{false};
     if (m_db_ptr && (!sql_main.empty()) && (!page_query.GetSortField().empty()) && out_rows.empty())

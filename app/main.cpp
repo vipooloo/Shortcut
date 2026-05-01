@@ -1,4 +1,6 @@
+#include "../dao/JobScDao.h"
 #include "JobScDbAccess.h"
+#include "JobScDbValue.h"
 #include "JobScLogger.h"
 #include <iostream>
 
@@ -25,13 +27,13 @@ static constexpr const char* sql = R"(
 
 int main(int argc, char* argv[])
 {
-    JobScDbAccess db_access;
-    db_access.SetDbPath("test.db");
-    db_access.SetUserVersion(1);
-    db_access.SetUpgradeCallback([&](int64_t old_ver, int64_t new_ver) -> bool {
+    auto db_access = std::make_shared<JobScDbAccess>();
+    db_access->SetDbPath("test.db");
+    db_access->SetUserVersion(1);
+    db_access->SetUpgradeCallback([&](int64_t old_ver, int64_t new_ver) -> bool {
         if (old_ver < 1)
         {
-            if (!db_access.ExecuteSql(sql))
+            if (!db_access->ExecuteSql(sql))
             {
                 std::cout << "failed to create tables" << std::endl;
                 return false;
@@ -47,8 +49,20 @@ int main(int argc, char* argv[])
         }
         return true;
     });
-    if (db_access.Init())
+    if (db_access->Init())
     {
+        std::cout << "db init success" << std::endl;
+    }
+    JobScDao dao(db_access);
+    JobScRow entity;
+    entity.emplace("job_type", static_cast<uint64_t>(1));
+    entity.emplace("description", "");
+    entity.emplace("settings", JobScDbValue(std::vector<uint8_t>{0x01, 0x02, 0x03}));
+    entity.emplace("address_list", JobScDbValue(std::vector<uint8_t>{0x04, 0x05, 0x06}));
+    int64_t id = 0;
+    if (dao.Insert(123, entity, id))
+    {
+        std::cout << "insert success, id: " << id << std::endl;
     }
     return 0;
 }

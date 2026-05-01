@@ -51,11 +51,25 @@ JobScDbValue::JobScDbValue(int64_t value)
     m_data.assign(p, p + sizeof(int64_t));
 }
 
+JobScDbValue::JobScDbValue(uint64_t value)
+  : m_type{JobScDbValType::Int}
+  , m_data{}
+{
+    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
+    m_data.assign(p, p + sizeof(int64_t));
+}
+
 JobScDbValue::JobScDbValue(const std::string& value)
   : m_type{JobScDbValType::String}
   , m_data{}
 {
-    m_data.assign(value.begin(), value.end());
+    m_data.assign(value.cbegin(), value.cend());
+}
+
+JobScDbValue::JobScDbValue(const std::vector<uint8_t>& value)
+  : m_type{JobScDbValType::Blob}
+  , m_data{value.cbegin(), value.cend()}
+{
 }
 
 JobScDbValue::JobScDbValue(const uint8_t* data, uint32_t len)

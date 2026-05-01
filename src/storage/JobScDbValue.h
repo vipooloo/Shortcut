@@ -18,14 +18,16 @@ class JobScDbValue
 {
   public:
     JobScDbValue();
+    explicit JobScDbValue(int64_t value);
+    explicit JobScDbValue(uint64_t value);
     explicit JobScDbValue(const std::string& value);
+    JobScDbValue(const std::vector<uint8_t>& value);
     JobScDbValue(const uint8_t* data, uint32_t len);
     JobScDbValue(const JobScDbValue& other);
     JobScDbValue(JobScDbValue&& other) noexcept;
     JobScDbValue& operator=(const JobScDbValue& other);
     JobScDbValue& operator=(JobScDbValue&& other) noexcept;
 
-    explicit JobScDbValue(int64_t value);
     ~JobScDbValue() = default;
 
     JobScDbValType GetType() const
