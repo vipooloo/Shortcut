@@ -3,6 +3,11 @@
 
 // 表名
 constexpr const char* kTableName = "shortcut";
+constexpr const char* kFieldAccountId = "account_id";
+constexpr const char* kFieldJobType = "job_type";
+constexpr const char* kFieldDescription = "description";
+constexpr const char* kFieldSettings = "settings";
+constexpr const char* kFieldAddressList = "address_list";
 
 JobScDao::JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr)
   : m_db_ptr{db_ptr}
@@ -163,21 +168,80 @@ bool JobScDao::CheckRequiredFields(
 bool JobScDao::GetListByTypePage(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
 {
     bool result{false};
-    do
+
+    if (m_db_ptr)
     {
-        if (!m_db_ptr)
+        if (type == JobScType::All)
         {
-            JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - database not initialized");
-            break;
+            if (keyword.empty())
+            {
+                result = GetAllPage(page_query, out_result, out_list);
+            }
+            else
+            {
+                result = GetAllByKeywordPage(keyword, page_query, out_result, out_list);
+            }
         }
-        std::string sql_main = "SELECT * FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
-        std::vector<JobScDbValue> params;
-        params.emplace_back(static_cast<int64_t>(type));
-        result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
-        if (!result)
+        else
         {
-            JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - execute sql failed");
+            if (keyword.empty())
+            {
+                result = GetListByTypePage(type, page_query, out_result, out_list);
+            }
+            else
+            {
+                result = GetListByTypeAndKeywordPage(type, keyword, page_query, out_result, out_list);
+            }
         }
-    } while (false);
+    }
+    else
+    {
+        JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - database not initialized");
+    }
+
+    return result;
+}
+
+bool JobScDao::GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+{
+    bool result{false};
+    // 无类型 + 无关键词 → 查询全部
+    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName);
+    std::vector<JobScDbValue> params;
+    result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
+    return result;
+}
+
+bool JobScDao::GetAllByKeywordPage(const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+{
+    bool result{false};
+    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE description LIKE ?";
+    // 无类型 + 有关键词 → 模糊匹配
+    std::vector<JobScDbValue> params;
+    params.emplace_back("%" + keyword + "%");
+    result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
+    return result;
+}
+
+bool JobScDao::GetListByTypePage(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+{
+    bool result{false};
+    // 有类型 + 无关键词
+    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+    std::vector<JobScDbValue> params;
+    params.emplace_back(static_cast<int64_t>(type));
+    result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
+    return result;
+}
+
+bool JobScDao::GetListByTypeAndKeywordPage(JobScType type, const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+{
+    bool result{false};
+    // 有类型 + 有关键词（完整版）
+    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=? AND description LIKE ?";
+    std::vector<JobScDbValue> params;
+    params.emplace_back(static_cast<int64_t>(type));
+    params.emplace_back("%" + keyword + "%");
+    result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
 }

@@ -8,12 +8,6 @@
 #include <string>
 #include <vector>
 
-constexpr const char* kFieldAccountId = "account_id";
-constexpr const char* kFieldJobType = "job_type";
-constexpr const char* kFieldDescription = "description";
-constexpr const char* kFieldSettings = "settings";
-constexpr const char* kFieldAddressList = "address_list";
-
 class JobScDao
 {
   public:
@@ -25,14 +19,21 @@ class JobScDao
     bool DeleteByType(JobScType type);
     bool Update(int64_t rid, const JobScRow& row_data);
 
-    bool GetListByTypePage(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool GetListByTypePage(
+        const std::string& keyword,
+        JobScType type,
+        const JobScDbPageQuery& page_query,
+        JobScPageResult& out_result,
+        JobScRowList& out_list);
 
-    // bool GetListByName(const std::string& name, JobScRowList& out_list);
-    // bool GetListByNamePage(const std::string& name, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
   private:
     bool CheckRequiredFields(
         const JobScRow& row_data,
         const std::vector<std::string>& required_fields);
+    bool GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool GetAllByKeywordPage(const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool GetListByTypePage(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool GetListByTypeAndKeywordPage(JobScType type, const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
 
   private:
     std::shared_ptr<JobScDbAccess> m_db_ptr;
