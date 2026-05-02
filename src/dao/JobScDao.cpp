@@ -1,13 +1,13 @@
 #include "JobScDao.h"
 #include "JobScLogger.h"
 
-// 表名
-constexpr const char* kTableName = "shortcut";
-constexpr const char* kFieldAccountId = "account_id";
-constexpr const char* kFieldJobType = "job_type";
-constexpr const char* kFieldDescription = "description";
-constexpr const char* kFieldSettings = "settings";
-constexpr const char* kFieldAddressList = "address_list";
+constexpr char kTableName[] = "shortcut";
+constexpr char kFieldRid[] = "rid";
+constexpr char kFieldAccountId[] = "account_id";
+constexpr char kFieldJobType[] = "job_type";
+constexpr char kFieldDescription[] = "description";
+constexpr char kFieldSettings[] = "settings";
+constexpr char kFieldAddressList[] = "address_list";
 
 JobScDao::JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr)
   : m_db_ptr{db_ptr}
@@ -66,7 +66,7 @@ bool JobScDao::Delete(int64_t rid)
     bool result{false};
     if (m_db_ptr)
     {
-        std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE rid=?";
+        std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE " + kFieldRid + "=?";
         std::vector<JobScDbValue> params;
         params.emplace_back(rid);
         result = m_db_ptr->ExecuteSql(sql, params);
@@ -118,7 +118,7 @@ bool JobScDao::Update(int64_t rid, const JobScRow& row_data)
             kFieldDescription,
             kFieldSettings,
             kFieldAddressList};
-        if (CheckRequiredFields(row_data, required_fields))
+        if (!CheckRequiredFields(row_data, required_fields))
         {
             JOBSC_LOG_ERROR("JobScDao::Update - missing required fields");
             break;
@@ -128,7 +128,7 @@ bool JobScDao::Update(int64_t rid, const JobScRow& row_data)
                           kFieldDescription + "=?, " +
                           kFieldSettings + "=?, " +
                           kFieldAddressList + "=? " +
-                          "WHERE rid=?";
+                          "WHERE " + kFieldRid + "=?";
 
         std::vector<JobScDbValue> params;
         params.reserve(5);
@@ -206,7 +206,7 @@ bool JobScDao::GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& o
 {
     bool result{false};
     // 无类型 + 无关键词 → 查询全部
-    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName);
+    std::string sql_main = "SELECT " + std::string(kFieldRid) + ", " + kFieldJobType + ", " + kFieldDescription + ", " + kFieldSettings + ", " + kFieldAddressList + " FROM " + std::string(kTableName);
     std::vector<JobScDbValue> params;
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
@@ -215,8 +215,8 @@ bool JobScDao::GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& o
 bool JobScDao::GetAllByKeywordPage(const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
 {
     bool result{false};
-    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE description LIKE ?";
     // 无类型 + 有关键词 → 模糊匹配
+    std::string sql_main = "SELECT " + std::string(kFieldRid) + ", " + kFieldJobType + ", " + kFieldDescription + ", " + kFieldSettings + ", " + kFieldAddressList + " FROM " + std::string(kTableName) + " WHERE " + kFieldDescription + " LIKE ?";
     std::vector<JobScDbValue> params;
     params.emplace_back("%" + keyword + "%");
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
@@ -227,7 +227,7 @@ bool JobScDao::GetListByTypePage(JobScType type, const JobScDbPageQuery& page_qu
 {
     bool result{false};
     // 有类型 + 无关键词
-    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+    std::string sql_main = "SELECT " + std::string(kFieldRid) + ", " + kFieldJobType + ", " + kFieldDescription + ", " + kFieldSettings + ", " + kFieldAddressList + " FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
     std::vector<JobScDbValue> params;
     params.emplace_back(static_cast<int64_t>(type));
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
@@ -237,8 +237,8 @@ bool JobScDao::GetListByTypePage(JobScType type, const JobScDbPageQuery& page_qu
 bool JobScDao::GetListByTypeAndKeywordPage(JobScType type, const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
 {
     bool result{false};
-    // 有类型 + 有关键词（完整版）
-    std::string sql_main = "SELECT rid, job_type, description, settings, address_list FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=? AND description LIKE ?";
+    // 有类型 + 有关键词
+    std::string sql_main = "SELECT " + std::string(kFieldRid) + ", " + kFieldJobType + ", " + kFieldDescription + ", " + kFieldSettings + ", " + kFieldAddressList + " FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=? AND " + kFieldDescription + " LIKE ?";
     std::vector<JobScDbValue> params;
     params.emplace_back(static_cast<int64_t>(type));
     params.emplace_back("%" + keyword + "%");
