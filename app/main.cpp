@@ -1,7 +1,7 @@
+#include "../JobScLogger.h"
 #include "../dao/JobScDao.h"
 #include "JobScDbAccess.h"
 #include "JobScDbValue.h"
-#include "JobScLogger.h"
 #include <iostream>
 
 static constexpr const char* sql = R"(
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     JobScDao dao(db_access);
     JobScRow entity;
     entity.emplace("job_type", static_cast<uint64_t>(1));
-    entity.emplace("description", "");
+    entity.emplace("description", "abc");
     entity.emplace("settings", JobScDbValue(std::vector<uint8_t>{0x01, 0x02, 0x03}));
     entity.emplace("address_list", JobScDbValue(std::vector<uint8_t>{0x04, 0x05, 0x06}));
     int64_t id = 0;
@@ -64,5 +64,14 @@ int main(int argc, char* argv[])
     {
         std::cout << "insert success, id: " << id << std::endl;
     }
+    JobScDbPageQuery page_query("rid", JobScOrderType::DESC, 0, 10);
+    JobScPageResult out_result;
+    JobScRowList out_list;
+    dao.GetListByTypePage(
+        "abc",
+        static_cast<JobScType>(1),
+        page_query,
+        out_result,
+        out_list);
     return 0;
 }
