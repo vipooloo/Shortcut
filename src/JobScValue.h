@@ -1,12 +1,12 @@
-#ifndef DBVALUE_H
-#define DBVALUE_H
+#ifndef JOBSCVALUE_H
+#define JOBSCVALUE_H
 
 #include "JobScDefines.h"
 #include <cstdint>
 #include <string>
 #include <vector>
 
-enum class JobScDbValType : int32_t
+enum class JobScValType : int32_t
 {
     Null = 0,
     Int,
@@ -14,30 +14,30 @@ enum class JobScDbValType : int32_t
     Blob,
 };
 
-class JobScDbValue
+class JobScValue
 {
   public:
-    JobScDbValue();
-    explicit JobScDbValue(int64_t value);
-    explicit JobScDbValue(uint64_t value);
-    explicit JobScDbValue(const std::string& value);
-    JobScDbValue(const std::vector<uint8_t>& value);
-    JobScDbValue(const uint8_t* data, uint32_t len);
-    JobScDbValue(const JobScDbValue& other);
-    JobScDbValue(JobScDbValue&& other) noexcept;
-    JobScDbValue& operator=(const JobScDbValue& other);
-    JobScDbValue& operator=(JobScDbValue&& other) noexcept;
+    JobScValue();
+    explicit JobScValue(int64_t value);
+    explicit JobScValue(uint64_t value);
+    explicit JobScValue(const std::string& value);
+    JobScValue(const std::vector<uint8_t>& value);
+    JobScValue(const uint8_t* data, uint32_t len);
+    JobScValue(const JobScValue& other);
+    JobScValue(JobScValue&& other) noexcept;
+    JobScValue& operator=(const JobScValue& other);
+    JobScValue& operator=(JobScValue&& other) noexcept;
 
-    ~JobScDbValue() = default;
+    ~JobScValue() = default;
 
-    JobScDbValType GetType() const
+    JobScValType GetType() const
     {
         return m_type;
     }
 
     bool IsNull() const
     {
-        return (JobScDbValType::Null == m_type);
+        return (JobScValType::Null == m_type);
     }
 
     int32_t ToInt32(bool& ok) const;
@@ -56,8 +56,8 @@ class JobScDbValue
     operator const std::vector<uint8_t>&() const;
 
   private:
-    JobScDbValType m_type;
+    JobScValType m_type;
     std::vector<uint8_t> m_data;
 };
 
-#endif  // DBVALUE_H
+#endif  // JOBSCVALUE_H

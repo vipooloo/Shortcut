@@ -1,19 +1,22 @@
 #ifndef JOBSCDAO_H
 #define JOBSCDAO_H
 
-#include "JobScDbAccess.h"
-#include "JobScType.h"
-#include <cstdint>
+#include "JobScTypes.h"
 #include <memory>
-#include <string>
-#include <vector>
+
+class JobScDbAccess;
+class JobScDbPageQuery;
 
 class JobScDao
 {
   public:
+    JobScDao();
     explicit JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr);
     ~JobScDao() = default;
-
+    void SetDbAccess(const std::shared_ptr<JobScDbAccess>& db_ptr)
+    {
+        m_db_ptr = db_ptr;
+    }
     bool Insert(uint64_t account_id, const JobScRow& row_data, int64_t& out_id);
     bool Delete(int64_t rid);
     bool DeleteByType(JobScType type);

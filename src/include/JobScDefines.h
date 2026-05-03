@@ -17,6 +17,15 @@ typedef struct JobScPageResult
     uint32_t page_size;
 } JOBSCPAGERESULT_S;
 
+enum class JobScType : uint32_t
+{
+    ScanToEmail,
+    ScanToFTP,
+    ScanToSMB,
+    ScanToUSB,
+    All,
+};
+
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_INDEX = 0U;
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_SIZE = 10U;
 

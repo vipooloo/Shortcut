@@ -1,4 +1,5 @@
 #include "JobScDao.h"
+#include "JobScDbAccess.h"
 #include "JobScLogger.h"
 
 constexpr char kTableName[] = "shortcut";
@@ -8,6 +9,11 @@ constexpr char kFieldJobType[] = "job_type";
 constexpr char kFieldDescription[] = "description";
 constexpr char kFieldSettings[] = "settings";
 constexpr char kFieldAddressList[] = "address_list";
+
+JobScDao::JobScDao()
+  : JobScDao{nullptr}
+{
+}
 
 JobScDao::JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr)
   : m_db_ptr{db_ptr}
@@ -42,7 +48,7 @@ bool JobScDao::Insert(uint64_t account_id, const JobScRow& row_data, int64_t& ou
                           kFieldSettings + ", " +
                           kFieldAddressList +
                           ") VALUES (?, ?, ?, ?, ?)";
-        std::vector<JobScDbValue> params;
+        std::vector<JobScValue> params;
         params.reserve(6);
         params.emplace_back(account_id);
         for (size_t i = 0; i < required_fields.size(); ++i)
@@ -67,7 +73,7 @@ bool JobScDao::Delete(int64_t rid)
     if (m_db_ptr)
     {
         std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE " + kFieldRid + "=?";
-        std::vector<JobScDbValue> params;
+        std::vector<JobScValue> params;
         params.emplace_back(rid);
         result = m_db_ptr->ExecuteSql(sql, params);
         if (!result)
@@ -88,7 +94,7 @@ bool JobScDao::DeleteByType(JobScType type)
     if (m_db_ptr)
     {
         std::string sql = "DELETE FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
-        std::vector<JobScDbValue> params;
+        std::vector<JobScValue> params;
         params.emplace_back(static_cast<int64_t>(type));
         result = m_db_ptr->ExecuteSql(sql, params);
         if (!result)
@@ -130,7 +136,7 @@ bool JobScDao::Update(int64_t rid, const JobScRow& row_data)
                           kFieldAddressList + "=? " +
                           "WHERE " + kFieldRid + "=?";
 
-        std::vector<JobScDbValue> params;
+        std::vector<JobScValue> params;
         params.reserve(5);
         for (size_t i = 0; i < required_fields.size(); ++i)
         {
@@ -214,7 +220,7 @@ bool JobScDao::GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& o
                            kFieldAddressList +
                            " FROM " +
                            std::string(kTableName);
-    std::vector<JobScDbValue> params;
+    std::vector<JobScValue> params;
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
 }
@@ -231,7 +237,7 @@ bool JobScDao::GetAllByKeywordPage(const std::string& keyword, const JobScDbPage
                            kFieldAddressList +
                            " FROM " +
                            std::string(kTableName) + " WHERE " + kFieldDescription + " LIKE ?";
-    std::vector<JobScDbValue> params;
+    std::vector<JobScValue> params;
     params.emplace_back("%" + keyword + "%");
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
@@ -249,7 +255,7 @@ bool JobScDao::GetListByTypePage(JobScType type, const JobScDbPageQuery& page_qu
                            kFieldAddressList +
                            " FROM " +
                            std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
-    std::vector<JobScDbValue> params;
+    std::vector<JobScValue> params;
     params.emplace_back(static_cast<int64_t>(type));
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
@@ -267,7 +273,7 @@ bool JobScDao::GetListByTypeAndKeywordPage(JobScType type, const std::string& ke
                            kFieldAddressList +
                            " FROM " +
                            std::string(kTableName) + " WHERE " + kFieldJobType + "=? AND " + kFieldDescription + " LIKE ?";
-    std::vector<JobScDbValue> params;
+    std::vector<JobScValue> params;
     params.emplace_back(static_cast<int64_t>(type));
     params.emplace_back("%" + keyword + "%");
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);

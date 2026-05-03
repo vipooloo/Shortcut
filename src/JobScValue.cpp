@@ -1,20 +1,20 @@
-#include "JobScDbValue.h"
+#include "JobScValue.h"
 #include <algorithm>
 #include <cstring>
 
-JobScDbValue::JobScDbValue()
-  : m_type{JobScDbValType::Null}
+JobScValue::JobScValue()
+  : m_type{JobScValType::Null}
   , m_data{}
 {
 }
 
-JobScDbValue::JobScDbValue(const JobScDbValue& other)
+JobScValue::JobScValue(const JobScValue& other)
 {
     m_type = other.m_type;
     m_data = other.m_data;
 }
 
-JobScDbValue::JobScDbValue(JobScDbValue&& other) noexcept
+JobScValue::JobScValue(JobScValue&& other) noexcept
 {
     if (this != &other)
     {
@@ -23,7 +23,7 @@ JobScDbValue::JobScDbValue(JobScDbValue&& other) noexcept
     }
 }
 
-JobScDbValue& JobScDbValue::operator=(const JobScDbValue& other)
+JobScValue& JobScValue::operator=(const JobScValue& other)
 {
     if (this != &other)
     {
@@ -33,7 +33,7 @@ JobScDbValue& JobScDbValue::operator=(const JobScDbValue& other)
     return *this;
 }
 
-JobScDbValue& JobScDbValue::operator=(JobScDbValue&& other) noexcept
+JobScValue& JobScValue::operator=(JobScValue&& other) noexcept
 {
     if (this != &other)
     {
@@ -43,37 +43,37 @@ JobScDbValue& JobScDbValue::operator=(JobScDbValue&& other) noexcept
     return *this;
 }
 
-JobScDbValue::JobScDbValue(int64_t value)
-  : m_type{JobScDbValType::Int}
+JobScValue::JobScValue(int64_t value)
+  : m_type{JobScValType::Int}
   , m_data{}
 {
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
     m_data.assign(p, p + sizeof(int64_t));
 }
 
-JobScDbValue::JobScDbValue(uint64_t value)
-  : m_type{JobScDbValType::Int}
+JobScValue::JobScValue(uint64_t value)
+  : m_type{JobScValType::Int}
   , m_data{}
 {
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
     m_data.assign(p, p + sizeof(int64_t));
 }
 
-JobScDbValue::JobScDbValue(const std::string& value)
-  : m_type{JobScDbValType::String}
+JobScValue::JobScValue(const std::string& value)
+  : m_type{JobScValType::String}
   , m_data{}
 {
     m_data.assign(value.cbegin(), value.cend());
 }
 
-JobScDbValue::JobScDbValue(const std::vector<uint8_t>& value)
-  : m_type{JobScDbValType::Blob}
+JobScValue::JobScValue(const std::vector<uint8_t>& value)
+  : m_type{JobScValType::Blob}
   , m_data{value.cbegin(), value.cend()}
 {
 }
 
-JobScDbValue::JobScDbValue(const uint8_t* data, uint32_t len)
-  : m_type{JobScDbValType::Blob}
+JobScValue::JobScValue(const uint8_t* data, uint32_t len)
+  : m_type{JobScValType::Blob}
   , m_data{}
 {
     if ((data != nullptr) && (len > 0U))
@@ -82,12 +82,12 @@ JobScDbValue::JobScDbValue(const uint8_t* data, uint32_t len)
     }
 }
 
-int32_t JobScDbValue::ToInt32(bool& ok) const
+int32_t JobScValue::ToInt32(bool& ok) const
 {
     int64_t val{0};
     ok = false;
 
-    if (m_type == JobScDbValType::Int)
+    if (m_type == JobScValType::Int)
     {
         std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
@@ -95,12 +95,12 @@ int32_t JobScDbValue::ToInt32(bool& ok) const
     return static_cast<int32_t>(val);
 }
 
-uint32_t JobScDbValue::ToUint32(bool& ok) const
+uint32_t JobScValue::ToUint32(bool& ok) const
 {
     int64_t val{0};
     ok = false;
 
-    if (m_type == JobScDbValType::Int)
+    if (m_type == JobScValType::Int)
     {
         std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
@@ -108,12 +108,12 @@ uint32_t JobScDbValue::ToUint32(bool& ok) const
     return static_cast<uint32_t>(val);
 }
 
-uint64_t JobScDbValue::ToUint64(bool& ok) const
+uint64_t JobScValue::ToUint64(bool& ok) const
 {
     int64_t val{0};
     ok = false;
 
-    if (m_type == JobScDbValType::Int)
+    if (m_type == JobScValType::Int)
     {
         std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
@@ -121,12 +121,12 @@ uint64_t JobScDbValue::ToUint64(bool& ok) const
     return static_cast<uint64_t>(val);
 }
 
-int64_t JobScDbValue::ToInt64(bool& ok) const
+int64_t JobScValue::ToInt64(bool& ok) const
 {
     int64_t val{0};
     ok = false;
 
-    if (m_type == JobScDbValType::Int)
+    if (m_type == JobScValType::Int)
     {
         std::memcpy(&val, m_data.data(), std::min(m_data.size(), sizeof(int64_t)));
         ok = true;
@@ -134,12 +134,12 @@ int64_t JobScDbValue::ToInt64(bool& ok) const
     return val;
 }
 
-std::string JobScDbValue::ToString(bool& ok) const
+std::string JobScValue::ToString(bool& ok) const
 {
     std::string res{""};
     ok = false;
 
-    if (JobScDbValType::String == m_type)
+    if (JobScValType::String == m_type)
     {
         res.assign(m_data.begin(), m_data.end());
         ok = true;
@@ -147,47 +147,47 @@ std::string JobScDbValue::ToString(bool& ok) const
     return res;
 }
 
-const std::vector<uint8_t>& JobScDbValue::ToBlob() const
+const std::vector<uint8_t>& JobScValue::ToBlob() const
 {
     return m_data;
 }
 
-JobScDbValue::operator int32_t() const
+JobScValue::operator int32_t() const
 {
     bool result{false};
     return ToInt32(result);
 }
 
-JobScDbValue::operator uint32_t() const
+JobScValue::operator uint32_t() const
 {
     bool result{false};
     return ToUint32(result);
 }
 
-JobScDbValue::operator int64_t() const
+JobScValue::operator int64_t() const
 {
     bool result{false};
     return ToInt64(result);
 }
 
-JobScDbValue::operator uint64_t() const
+JobScValue::operator uint64_t() const
 {
     bool result{false};
     return ToUint64(result);
 }
 
-JobScDbValue::operator std::string() const
+JobScValue::operator std::string() const
 {
     bool result{false};
     return ToString(result);
 }
 
-JobScDbValue::operator std::vector<uint8_t>() const
+JobScValue::operator std::vector<uint8_t>() const
 {
     return ToBlob();
 }
 
-JobScDbValue::operator const std::vector<uint8_t>&() const
+JobScValue::operator const std::vector<uint8_t>&() const
 {
     return ToBlob();
 }

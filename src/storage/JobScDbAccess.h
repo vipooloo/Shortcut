@@ -2,17 +2,10 @@
 #define JOBSCDBACCESS_H
 
 #include "JobScDbPageQuery.h"
-#include "JobScDbValue.h"
+#include "JobScTypes.h"
+#include "JobScValue.h"
 #include <SQLiteCpp/SQLiteCpp.h>
-#include <functional>
-#include <map>
 #include <memory>
-#include <string>
-#include <vector>
-
-using JobScRow = std::map<std::string, JobScDbValue>;
-using JobScRowList = std::vector<JobScRow>;
-using UpgradeCallback = std::function<bool(int64_t, int64_t)>;
 
 class JobScDbAccess
 {
@@ -35,18 +28,18 @@ class JobScDbAccess
     }
 
     bool ExecuteSql(const std::string& sql);
-    bool ExecuteSql(const std::string& sql, const std::vector<JobScDbValue>& params);
+    bool ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params);
     int64_t GetLastInsertRowId();
 
     bool QuerySql(const std::string& sql, JobScRowList& out_rows);
-    bool QuerySql(const std::string& sql, const std::vector<JobScDbValue>& params, JobScRowList& out_rows);
+    bool QuerySql(const std::string& sql, const std::vector<JobScValue>& params, JobScRowList& out_rows);
 
     void BeginTransaction();
     void CommitTransaction();
     void RollbackTransaction();
 
     bool QueryPageUniversal(const std::string& sql_main,
-                            const std::vector<JobScDbValue>& params,
+                            const std::vector<JobScValue>& params,
                             const JobScDbPageQuery& page_query,
                             JobScPageResult& out_result,
                             JobScRowList& out_rows);
@@ -54,16 +47,16 @@ class JobScDbAccess
   private:
     JobScDbAccess(const JobScDbAccess&) = delete;
     JobScDbAccess& operator=(const JobScDbAccess&) = delete;
-    JobScDbAccess(JobScDbAccess&&) = delete;
-    JobScDbAccess& operator=(JobScDbAccess&&) = delete;
+    JobScDbAccess(JobScDbAccess&&) noexcept = delete;
+    JobScDbAccess& operator=(JobScDbAccess&&) noexcept = delete;
     bool GetDbVersion(int64_t& out_version);
     bool SetDbVersion(int64_t version);
-    static JobScDbValue WrapColumnValue(const SQLite::Column& col);
+    static JobScValue WrapColumnValue(const SQLite::Column& col);
     bool QueryTotalCount(const std::string& sql_main,
-                         const std::vector<JobScDbValue>& params,
+                         const std::vector<JobScValue>& params,
                          uint32_t& total);
     bool QueryPageData(const std::string& sql_main,
-                       const std::vector<JobScDbValue>& params,
+                       const std::vector<JobScValue>& params,
                        const JobScDbPageQuery& page_query,
                        uint32_t total,
                        JobScPageResult& out_result,

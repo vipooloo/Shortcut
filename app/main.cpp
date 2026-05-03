@@ -1,7 +1,4 @@
-#include "../JobScLogger.h"
-#include "../dao/JobScDao.h"
-#include "JobScDbAccess.h"
-#include "JobScDbValue.h"
+
 #include <iostream>
 
 static constexpr const char* sql = R"(
@@ -27,51 +24,51 @@ static constexpr const char* sql = R"(
 
 int main(int argc, char* argv[])
 {
-    auto db_access = std::make_shared<JobScDbAccess>();
-    db_access->SetDbPath("test.db");
-    db_access->SetUserVersion(1);
-    db_access->SetUpgradeCallback([&](int64_t old_ver, int64_t new_ver) -> bool {
-        if (old_ver < 1)
-        {
-            if (!db_access->ExecuteSql(sql))
-            {
-                std::cout << "failed to create tables" << std::endl;
-                return false;
-            }
-        }
+    // auto db_access = std::make_shared<JobScDbAccess>();
+    // db_access->SetDbPath("test.db");
+    // db_access->SetUserVersion(1);
+    // db_access->SetUpgradeCallback([&](int64_t old_ver, int64_t new_ver) -> bool {
+    //     if (old_ver < 1)
+    //     {
+    //         if (!db_access->ExecuteSql(sql))
+    //         {
+    //             std::cout << "failed to create tables" << std::endl;
+    //             return false;
+    //         }
+    //     }
 
-        if (old_ver < 2)
-        {
-        }
+    //     if (old_ver < 2)
+    //     {
+    //     }
 
-        if (old_ver < 3)
-        {
-        }
-        return true;
-    });
-    if (db_access->Init())
-    {
-        std::cout << "db init success" << std::endl;
-    }
-    JobScDao dao(db_access);
-    JobScRow entity;
-    entity.emplace("job_type", static_cast<uint64_t>(1));
-    entity.emplace("description", "abc");
-    entity.emplace("settings", JobScDbValue(std::vector<uint8_t>{0x01, 0x02, 0x03}));
-    entity.emplace("address_list", JobScDbValue(std::vector<uint8_t>{0x04, 0x05, 0x06}));
-    int64_t id = 0;
-    if (dao.Insert(123, entity, id))
-    {
-        std::cout << "insert success, id: " << id << std::endl;
-    }
-    JobScDbPageQuery page_query("rid", JobScOrderType::DESC, 0, 10);
-    JobScPageResult out_result;
-    JobScRowList out_list;
-    dao.GetListByTypePage(
-        "abc",
-        static_cast<JobScType>(1),
-        page_query,
-        out_result,
-        out_list);
+    //     if (old_ver < 3)
+    //     {
+    //     }
+    //     return true;
+    // });
+    // if (db_access->Init())
+    // {
+    //     std::cout << "db init success" << std::endl;
+    // }
+    // JobScDao dao(db_access);
+    // JobScRow entity;
+    // entity.emplace("job_type", static_cast<uint64_t>(1));
+    // entity.emplace("description", "abc");
+    // entity.emplace("settings", JobScDbValue(std::vector<uint8_t>{0x01, 0x02, 0x03}));
+    // entity.emplace("address_list", JobScDbValue(std::vector<uint8_t>{0x04, 0x05, 0x06}));
+    // int64_t id = 0;
+    // if (dao.Insert(123, entity, id))
+    // {
+    //     std::cout << "insert success, id: " << id << std::endl;
+    // }
+    // JobScDbPageQuery page_query("rid", JobScOrderType::DESC, 0, 10);
+    // JobScPageResult out_result;
+    // JobScRowList out_list;
+    // dao.GetListByTypePage(
+    //     "abc",
+    //     static_cast<JobScType>(1),
+    //     page_query,
+    //     out_result,
+    //     out_list);
     return 0;
 }
