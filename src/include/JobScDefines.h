@@ -19,6 +19,7 @@ typedef struct JobScPageResult
 
 enum class JobScType : uint32_t
 {
+    None = 0,
     ScanToEmail,
     ScanToFTP,
     ScanToSMB,
