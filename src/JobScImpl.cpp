@@ -27,6 +27,22 @@ void JobScImpl::AddObserver(const JobScObserver& observer)
     }
 }
 
+void JobScImpl::Notify(JobScEventType event)
+{
+    std::list<JobScObserver> observers;
+    {
+        std::lock_guard<std::mutex> lock(m_observers_mutex);
+        observers = m_observers;
+    }
+    for (const JobScObserver& observer : observers)
+    {
+        if (observer)
+        {
+            observer(event);
+        }
+    }
+}
+
 std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScItem& item)
 {
     JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu", account_id);

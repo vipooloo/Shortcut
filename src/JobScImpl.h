@@ -26,6 +26,7 @@ class JobScImpl
     JobScImpl& operator=(const JobScImpl&) noexcept = delete;
     JobScImpl(JobScImpl&&) = delete;
     JobScImpl& operator=(JobScImpl&&) noexcept = delete;
+    void Notify(JobScEventType event);
 
   private:
     std::mutex m_service_mutex;

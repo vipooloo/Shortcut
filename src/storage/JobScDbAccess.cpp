@@ -88,6 +88,11 @@ bool JobScDbAccess::Init()
                 JOBSC_LOG_ERROR("JobScDbAccess::Init() - failed to set db version");
             }
         }
+        else
+        {
+            JOBSC_LOG_ERROR("JobScDbAccess::Init() - db version is up to date");
+            break;
+        }
         result = true;
     } while (false);
     if (result)
@@ -314,9 +319,10 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
         const char* ord = (JobScOrderType::ASC == page_query.GetOrderType()) ? "ASC" : "DESC";
 
         char sql_data[DB_SQL_BUFFER] = {0};
-        snprintf(sql_data, sizeof(sql_data), "%s ORDER BY %s %s LIMIT ? OFFSET ?", sql_main.c_str(), page_query.GetSortFieldCStr(), ord);
+        snprintf(sql_data, sizeof(sql_data), "%s ORDER BY ? %s LIMIT ? OFFSET ?", sql_main.c_str(), ord);
 
         std::vector<JobScValue> page_params = params;
+        page_params.emplace_back(JobScValue(page_query.GetSortField()));
         page_params.emplace_back(JobScValue(std::to_string(page_size)));
         page_params.emplace_back(JobScValue(std::to_string(offset)));
 
@@ -324,10 +330,10 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
         {
             result = true;
             out_result = {
-                .total_count = total,
-                .total_page = total_page,
-                .page_index = page_query.GetPageIndex(),
-                .page_size = page_size};
+                total,
+                total_page,
+                page_query.GetPageIndex(),
+                page_size};
         }
     }
     else
