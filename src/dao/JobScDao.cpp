@@ -1,14 +1,8 @@
 #include "JobScDao.h"
 #include "JobScDbAccess.h"
+#include "JobScDbPageQuery.h"
 #include "JobScLogger.h"
-
-constexpr char kTableName[] = "shortcut";
-constexpr char kFieldRid[] = "rid";
-constexpr char kFieldAccountId[] = "account_id";
-constexpr char kFieldJobType[] = "job_type";
-constexpr char kFieldDescription[] = "description";
-constexpr char kFieldSettings[] = "settings";
-constexpr char kFieldAddressList[] = "address_list";
+#include "JobScSqlDefines.h"
 
 JobScDao::JobScDao()
   : JobScDao{nullptr}
@@ -278,4 +272,64 @@ bool JobScDao::GetListByTypeAndKeywordPage(JobScType type, const std::string& ke
     params.emplace_back("%" + keyword + "%");
     result = m_db_ptr->QueryPageUniversal(sql_main, params, page_query, out_result, out_list);
     return result;
+}
+
+uint64_t JobScDao::GetCountByType(uint64_t account_id, JobScType job_type)
+{
+    uint64_t count{0u};
+    std::string sql = "SELECT COUNT(*) FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+    std::vector<JobScValue> params;
+    params.emplace_back(static_cast<int64_t>(job_type));
+    JobScRowList count_rows;
+    do
+    {
+        if (!m_db_ptr)
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetCountByType - database not initialized");
+            break;
+        }
+        if (!m_db_ptr->QuerySql(sql, params, count_rows))
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetCountByType - execute sql failed");
+            break;
+        }
+        if (count_rows.empty())
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetCountByType - no count result");
+            break;
+        }
+        bool result{false};
+        count = count_rows[0]["COUNT(*)"].ToUint64(result);
+        if (!result)
+        {
+            JOBSC_LOG_ERROR("JobScDao::GetCountByType - failed to parse count result");
+            count = 0;
+            break;
+        }
+    } while (false);
+    return count;
+}
+
+void JobScDao::BeginTransaction()
+{
+    if (m_db_ptr)
+    {
+        m_db_ptr->BeginTransaction();
+    }
+}
+
+void JobScDao::CommitTransaction()
+{
+    if (m_db_ptr)
+    {
+        m_db_ptr->CommitTransaction();
+    }
+}
+
+void JobScDao::RollbackTransaction()
+{
+    if (m_db_ptr)
+    {
+        m_db_ptr->RollbackTransaction();
+    }
 }

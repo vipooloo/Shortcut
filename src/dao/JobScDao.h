@@ -10,6 +10,25 @@ class JobScDbPageQuery;
 class JobScDao
 {
   public:
+    class JobScTransGuard
+    {
+      public:
+        explicit JobScTransGuard(JobScDao& dao);
+        ~JobScTransGuard();
+        void Commit();
+
+      private:
+        JobScTransGuard(const JobScTransGuard&) = delete;
+        JobScTransGuard(JobScTransGuard&&) noexcept = delete;
+        JobScTransGuard& operator=(const JobScTransGuard&) = delete;
+        JobScTransGuard& operator=(JobScTransGuard&&) noexcept = delete;
+
+      private:
+        JobScDao& m_dao;
+        bool m_committed;
+    };
+
+  public:
     JobScDao();
     explicit JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr);
     ~JobScDao() = default;
@@ -28,8 +47,12 @@ class JobScDao
         const JobScDbPageQuery& page_query,
         JobScPageResult& out_result,
         JobScRowList& out_list);
+    uint64_t GetCountByType(uint64_t account_id, JobScType job_type);
 
   private:
+    void BeginTransaction();
+    void CommitTransaction();
+    void RollbackTransaction();
     bool CheckRequiredFields(
         const JobScRow& row_data,
         const std::vector<std::string>& required_fields);

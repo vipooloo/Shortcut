@@ -25,7 +25,6 @@ static constexpr char DB_SQL_INIT[] = R"(
     END;
 )";
 
-static constexpr uint32_t DB_SQL_BUFFER = 1024U;
 static constexpr char DB_SQL_PRAGMA_USER_VERSION[] = "PRAGMA user_version;";
 static constexpr char DB_SQL_BEGIN_TRANSACTION[] = "BEGIN TRANSACTION;";
 static constexpr char DB_SQL_COMMIT_TRANSACTION[] = "COMMIT TRANSACTION;";
@@ -35,5 +34,17 @@ static constexpr char DB_SQL_JOURNAL_MODE[] = "PRAGMA journal_mode = DELETE;";
 static constexpr char DB_SQL_SYNCHRONOUS[] = "PRAGMA synchronous = FULL;";
 static constexpr char DB_SQL_AUTO_VACUUM[] = "PRAGMA auto_vacuum = FULL;";
 static constexpr char DB_SQL_TEMP_STORE[] = "PRAGMA temp_store = MEMORY;";
+
+constexpr char kTableName[] = "shortcut";
+constexpr char kFieldRid[] = "rid";
+constexpr char kFieldAccountId[] = "account_id";
+constexpr char kFieldJobType[] = "job_type";
+constexpr char kFieldDescription[] = "description";
+constexpr char kFieldSettings[] = "settings";
+constexpr char kFieldAddressList[] = "address_list";
+
+static constexpr uint32_t DB_SQL_BUFFER = 1024U;
+static constexpr int64_t INVALID_RID = 0;
+static constexpr uint64_t MAX_COUNT_PER_TYPE = 10u;
 
 #endif  // JOBSCSQLDEFINES_H
