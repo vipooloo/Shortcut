@@ -5,6 +5,7 @@
 #include "JobScInitializer.h"
 #include "JobScItem.h"
 #include "JobScResult.h"
+#include <list>
 #include <mutex>
 
 class JobScImpl
@@ -16,6 +17,8 @@ class JobScImpl
     JobScResult DeleteByType(const std::vector<JobScType>& types);
     JobScResult Update(int64_t rid, const JobScItem& item);
 
+    void AddObserver(const JobScObserver& observer);
+
   private:
     JobScImpl();
     ~JobScImpl() = default;
@@ -25,9 +28,11 @@ class JobScImpl
     JobScImpl& operator=(JobScImpl&&) noexcept = delete;
 
   private:
-    std::mutex m_mutex;
+    std::mutex m_service_mutex;
     JobScInitializer m_initializer;
     JobScDao m_dao;
+    std::mutex m_observers_mutex;
+    std::list<JobScObserver> m_observers;
 };
 
 #endif  // JOBSCIMPL_H

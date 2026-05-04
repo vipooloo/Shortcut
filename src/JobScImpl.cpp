@@ -3,9 +3,11 @@
 #include "JobScSqlDefines.h"
 
 JobScImpl::JobScImpl()
-  : m_mutex{}
+  : m_service_mutex{}
   , m_initializer{}
   , m_dao{}
+  , m_observers_mutex{}
+  , m_observers{}
 {
     m_initializer.Init(m_dao);
 }
@@ -16,13 +18,22 @@ JobScImpl& JobScImpl::GetInstance()
     return instance;
 }
 
+void JobScImpl::AddObserver(const JobScObserver& observer)
+{
+    if (observer)
+    {
+        std::lock_guard<std::mutex> lock(m_observers_mutex);
+        m_observers.emplace_back(observer);
+    }
+}
+
 std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScItem& item)
 {
     JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu", account_id);
     std::pair<JobScResult, int64_t> result{JobScResult::Failed, INVALID_RID};
 
     JobScType job_type = item.GetJobType();
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_service_mutex);
     uint64_t count = m_dao.GetCountByType(account_id, job_type);
     if (count >= MAX_COUNT_PER_TYPE)
     {
@@ -37,7 +48,6 @@ std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScI
             {kFieldSettings, JobScValue(item.GetSettings())},
             {kFieldAddressList, JobScValue(item.GetAddressList())},
         };
-
         if (m_dao.Insert(account_id, row_data, result.second))
         {
             result.first = JobScResult::Success;
@@ -51,7 +61,7 @@ JobScResult JobScImpl::Delete(const std::vector<int64_t>& rids)
     JOBSC_LOG_INFO("JobScImpl::Delete - rids size:%zu", rids.size());
     JobScResult result{JobScResult::Failed};
 
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_service_mutex);
     JobScDao::JobScTransGuard trans(m_dao);
 
     bool all_success{true};
@@ -76,7 +86,7 @@ JobScResult JobScImpl::Delete(const std::vector<int64_t>& rids)
 JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
 {
     JOBSC_LOG_INFO("JobScImpl::DeleteByType - types size:%zu", types.size());
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_service_mutex);
     JobScDao::JobScTransGuard trans(m_dao);
 
     bool all_success{true};
@@ -103,7 +113,7 @@ JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
     JOBSC_LOG_INFO("JobScImpl::Update - rid:%ld", rid);
     JobScResult result{JobScResult::Failed};
 
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::mutex> lock(m_service_mutex);
     JobScRow row_data{
         {kFieldJobType, JobScValue(static_cast<int64_t>(item.GetJobType()))},
         {kFieldDescription, JobScValue(item.GetDescription())},

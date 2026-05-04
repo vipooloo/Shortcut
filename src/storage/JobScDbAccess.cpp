@@ -28,7 +28,7 @@ JobScValue JobScDbAccess::WrapColumnValue(const SQLite::Column& col)
             break;
         case SQLITE_BLOB:
             value = JobScValue(static_cast<const uint8_t*>(col.getBlob()),
-                                 static_cast<uint32_t>(col.getBytes()));
+                               static_cast<uint32_t>(col.getBytes()));
             break;
         default:
             JOBSC_LOG_ERROR("JobScDbAccess::WrapColumnValue - unsupported column type:%d", type);
@@ -323,12 +323,11 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
         if (QuerySql(sql_data, page_params, out_rows))
         {
             result = true;
-            out_result =
-                {
-                    total,
-                    total_page,
-                    page_query.GetPageIndex(),
-                    page_size};
+            out_result = {
+                .total_count = total,
+                .total_page = total_page,
+                .page_index = page_query.GetPageIndex(),
+                .page_size = page_size};
         }
     }
     else

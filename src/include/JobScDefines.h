@@ -2,6 +2,7 @@
 #define JOBSCDEFINES_H
 
 #include <cstdint>
+#include <functional>
 
 enum class JobScOrderType : int32_t
 {
@@ -17,7 +18,7 @@ typedef struct JobScPageResult
     uint32_t page_size;
 } JOBSCPAGERESULT_S;
 
-enum class JobScType : uint32_t
+enum class JobScType : int32_t
 {
     None = 0,
     ScanToEmail,
@@ -26,6 +27,15 @@ enum class JobScType : uint32_t
     ScanToUSB,
     All,
 };
+
+enum class JobScEventType : int32_t
+{
+    Added,    ///< 新增
+    Updated,  ///< 修改
+    Deleted,  ///< 删除
+};
+
+using JobScObserver = std::function<void(JobScEventType event)>;
 
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_INDEX = 0U;
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_SIZE = 10U;
