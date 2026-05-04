@@ -6,8 +6,30 @@ std::pair<JobScResult, int64_t> JobScMgr::Add(uint64_t account_id, const JobScIt
     return JobScImpl::GetInstance().Add(account_id, item);
 }
 
-JobScResult JobScMgr::Delete(int64_t rid)
-{}
+JobScResult JobScMgr::Delete(const std::vector<int64_t>& rids)
+{
+    return JobScImpl::GetInstance().Delete(rids);
+}
 
-JobScResult JobScMgr::DeleteByType(JobScType type)
-{}
+JobScResult JobScMgr::DeleteByType(const std::vector<JobScType>& types)
+{
+    return JobScImpl::GetInstance().DeleteByType(types);
+}
+
+JobScResult JobScMgr::Update(int64_t rid, const JobScItem& item)
+{
+    return JobScImpl::GetInstance().Update(rid, item);
+}
+
+JobScResult JobScMgr::GetListByTypePage(
+    const JobScPageQuery& page_query,
+    JobScPageResult& out_result,
+    std::vector<JobScItem>& out_items)
+{
+    return JobScImpl::GetInstance().GetListByTypePage(page_query, out_result, out_items);
+}
+
+void JobScMgr::AddObserver(const JobScObserver& observer)
+{
+    JobScImpl::GetInstance().AddObserver(observer);
+}

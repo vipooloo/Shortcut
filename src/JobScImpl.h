@@ -4,6 +4,7 @@
 #include "JobScDao.h"
 #include "JobScInitializer.h"
 #include "JobScItem.h"
+#include "JobScPageQuery.h"
 #include "JobScResult.h"
 #include <list>
 #include <mutex>
@@ -16,7 +17,10 @@ class JobScImpl
     JobScResult Delete(const std::vector<int64_t>& rids);
     JobScResult DeleteByType(const std::vector<JobScType>& types);
     JobScResult Update(int64_t rid, const JobScItem& item);
-
+    JobScResult GetListByTypePage(
+        const JobScPageQuery& page_query,
+        JobScPageResult& out_result,
+        std::vector<JobScItem>& out_items);
     void AddObserver(const JobScObserver& observer);
 
   private:
