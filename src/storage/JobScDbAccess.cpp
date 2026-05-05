@@ -337,18 +337,16 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
         if (QuerySql(sql_data, page_params, out_rows))
         {
             result = true;
-            out_result = {
-                total,
-                total_page,
-                page_query.GetPageIndex(),
-                page_size};
+            out_result.total_count = total;
+            out_result.total_page = total_page;
+            out_result.page_index = page_query.GetPageIndex();
+            out_result.page_size = page_size;
+        }
+        else
+        {
+            JOBSC_LOG_ERROR("JobScDbAccess::QueryPageData - invalid page size:%u", page_size);
         }
     }
-    else
-    {
-        JOBSC_LOG_ERROR("JobScDbAccess::QueryPageData - invalid page size:%u", page_size);
-    }
-
     return result;
 }
 

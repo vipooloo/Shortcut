@@ -108,6 +108,7 @@ JobScResult JobScImpl::Delete(const std::vector<int64_t>& rids)
 
 JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
 {
+    JobScResult result{JobScResult::Failed};
     JOBSC_LOG_INFO("JobScImpl::DeleteByType - types size:%zu", types.size());
     std::lock_guard<std::mutex> lock(m_service_mutex);
     JobScDao::JobScTransGuard trans(m_dao);
@@ -125,10 +126,10 @@ JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
     if (all_success)
     {
         trans.Commit();
-        return JobScResult::Success;
+        result = JobScResult::Success;
     }
 
-    return JobScResult::Failed;
+    return result;
 }
 
 JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
