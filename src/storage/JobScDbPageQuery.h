@@ -12,11 +12,11 @@ class JobScDbPageQuery
       : JobScDbPageQuery("", JobScOrderType::ASC, JOBSC_PAGE_DEFAULT_INDEX, JOBSC_PAGE_DEFAULT_SIZE)
     {}
 
-    JobScDbPageQuery(const std::string& sortField, JobScOrderType orderType, uint32_t pageIndex, uint32_t pageSize)
-      : m_sort_field(sortField)
-      , m_order_type(orderType)
-      , m_page_index(pageIndex)
-      , m_page_size(pageSize)
+    JobScDbPageQuery(const std::string& sort_field, JobScOrderType order_ype, uint32_t page_index, uint32_t page_size)
+      : m_sort_field(sort_field)
+      , m_order_type(order_ype)
+      , m_page_index(page_index)
+      , m_page_size(page_size)
     {
     }
 

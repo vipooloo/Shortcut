@@ -277,7 +277,7 @@ bool JobScDao::GetListByTypeAndKeywordPage(JobScType type, const std::string& ke
 uint64_t JobScDao::GetCountByType(uint64_t account_id, JobScType job_type)
 {
     uint64_t count{0u};
-    std::string sql = "SELECT COUNT(*) FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
+    std::string sql = "SELECT COUNT(*) AS total FROM " + std::string(kTableName) + " WHERE " + kFieldJobType + "=?";
     std::vector<JobScValue> params;
     params.emplace_back(static_cast<int64_t>(job_type));
     JobScRowList count_rows;
@@ -299,7 +299,7 @@ uint64_t JobScDao::GetCountByType(uint64_t account_id, JobScType job_type)
             break;
         }
         bool result{false};
-        count = count_rows[0]["COUNT(*)"].ToUint64(result);
+        count = count_rows[0]["total"].ToUint64(result);
         if (!result)
         {
             JOBSC_LOG_ERROR("JobScDao::GetCountByType - failed to parse count result");

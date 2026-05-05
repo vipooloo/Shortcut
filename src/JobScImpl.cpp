@@ -31,6 +31,7 @@ void JobScImpl::AddObserver(const JobScObserver& observer)
 
 void JobScImpl::Notify(JobScEventType event)
 {
+    JOBSC_LOG_INFO("JobScImpl::Notify - event:%d start", static_cast<int32_t>(event));
     std::list<JobScObserver> observers;
     {
         std::lock_guard<std::mutex> lock(m_observers_mutex);
@@ -43,6 +44,7 @@ void JobScImpl::Notify(JobScEventType event)
             observer(event);
         }
     }
+    JOBSC_LOG_INFO("JobScImpl::Notify - event:%d end", static_cast<int32_t>(event));
 }
 
 std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScItem& item)
@@ -70,6 +72,7 @@ std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScI
         {
             result.first = JobScResult::Success;
             JOBSC_LOG_INFO("JobScImpl::Add - success account_id:%lu job_type:%d rid:%ld", account_id, job_type, result.second);
+            Notify(JobScEventType::Added);
         }
         else
         {
@@ -101,6 +104,8 @@ JobScResult JobScImpl::Delete(const std::vector<int64_t>& rids)
     {
         trans.Commit();
         result = JobScResult::Success;
+        JOBSC_LOG_INFO("JobScImpl::Delete - success");
+        Notify(JobScEventType::Deleted);
     }
 
     return result;
@@ -127,6 +132,8 @@ JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
     {
         trans.Commit();
         result = JobScResult::Success;
+        JOBSC_LOG_INFO("JobScImpl::Delete - success");
+        Notify(JobScEventType::Deleted);
     }
 
     return result;
@@ -147,8 +154,9 @@ JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
 
     if (m_dao.Update(rid, row_data))
     {
-        JOBSC_LOG_INFO("JobScImpl::Update - success");
         result = JobScResult::Success;
+        JOBSC_LOG_INFO("JobScImpl::Delete - success");
+        Notify(JobScEventType::Deleted);
     }
     else
     {

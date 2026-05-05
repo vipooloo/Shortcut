@@ -1,6 +1,7 @@
 #include "JobScDbAccess.h"
 #include "JobScLogger.h"
 #include "JobScSqlDefines.h"
+#include <cinttypes>
 #include <climits>
 #include <cstdint>
 #include <sqlite3.h>
@@ -40,7 +41,7 @@ JobScValue JobScDbAccess::WrapColumnValue(const SQLite::Column& col)
 
 bool JobScDbAccess::Init()
 {
-    JOBSC_LOG_FORCE("JobScDbAccess::Init() - db_path:%s %ld", m_db_path.c_str(), m_user_version);
+    JOBSC_LOG_FORCE("JobScDbAccess::Init() - db_path:%s %" PRId64, m_db_path.c_str(), m_user_version);
 
     bool result{false};
     do
@@ -131,7 +132,7 @@ bool JobScDbAccess::GetDbVersion(int64_t& out_version)
 bool JobScDbAccess::SetDbVersion(int64_t version)
 {
     char sql[DB_SQL_BUFFER] = {0};
-    snprintf(sql, sizeof(sql), "PRAGMA user_version = %ld", version);
+    snprintf(sql, sizeof(sql), "PRAGMA user_version = %" PRId64, version);
     return ExecuteSql(sql);
 }
 
@@ -296,15 +297,15 @@ bool JobScDbAccess::QueryTotalCount(const std::string& sql_main,
     bool result{false};
     char sql_count[DB_SQL_BUFFER] = {0};
 
-    snprintf(sql_count, sizeof(sql_count), "SELECT COUNT(*) FROM (%s) AS t", sql_main.c_str());
+    snprintf(sql_count, sizeof(sql_count), "SELECT COUNT(*) AS total FROM (%s) AS t", sql_main.c_str());
     JobScRowList count_rows;
     result = QuerySql(sql_count, params, count_rows);
     if (result && !count_rows.empty())
     {
-        int64_t ver_str = count_rows[0]["COUNT(*)"].ToInt64(result);
+        int64_t ver = count_rows[0]["total"].ToInt64(result);
         if (result)
         {
-            total = static_cast<uint32_t>(ver_str);
+            total = static_cast<uint32_t>(ver);
         }
     }
     return result;
@@ -327,10 +328,9 @@ bool JobScDbAccess::QueryPageData(const std::string& sql_main,
         const char* ord = (JobScOrderType::ASC == page_query.GetOrderType()) ? "ASC" : "DESC";
 
         char sql_data[DB_SQL_BUFFER] = {0};
-        snprintf(sql_data, sizeof(sql_data), "%s ORDER BY ? %s LIMIT ? OFFSET ?", sql_main.c_str(), ord);
+        snprintf(sql_data, sizeof(sql_data), "%s ORDER BY %s %s LIMIT ? OFFSET ?", sql_main.c_str(), page_query.GetSortFieldCStr(), ord);
 
         std::vector<JobScValue> page_params = params;
-        page_params.emplace_back(JobScValue(page_query.GetSortField()));
         page_params.emplace_back(JobScValue(std::to_string(page_size)));
         page_params.emplace_back(JobScValue(std::to_string(offset)));
 
