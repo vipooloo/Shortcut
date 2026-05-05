@@ -57,6 +57,11 @@ bool JobScDbAccess::Init()
             JOBSC_LOG_ERROR("JobScDbAccess::Init() - failed to create database instance");
             break;
         }
+        if (!m_upgrade_callback)
+        {
+            JOBSC_LOG_ERROR("JobScDbAccess::Init() - upgrade callback is null");
+            break;
+        }
         BeginTransaction();
         const std::vector<std::string> pragmas = {
             DB_SQL_FOREIGN_KEYS,  ///<
@@ -79,7 +84,7 @@ bool JobScDbAccess::Init()
             break;
         }
         JOBSC_LOG_FORCE("JobScDbAccess::Init() - upgrade db from version %ld to %ld", cur_ver, m_user_version);
-        if ((cur_ver < m_user_version) && m_upgrade_callback)
+        if (cur_ver < m_user_version)
         {
             result = m_upgrade_callback(cur_ver, m_user_version);
             if (!result || (!SetDbVersion(m_user_version)))
@@ -88,10 +93,13 @@ bool JobScDbAccess::Init()
                 JOBSC_LOG_ERROR("JobScDbAccess::Init() - failed to set db version");
             }
         }
-        else
+        else if (cur_ver > m_user_version)
         {
             JOBSC_LOG_ERROR("JobScDbAccess::Init() - db version is up to date");
             break;
+        }
+        else
+        {
         }
         result = true;
     } while (false);

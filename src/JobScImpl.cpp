@@ -2,6 +2,7 @@
 #include "JobScDbPageQuery.h"
 #include "JobScLogger.h"
 #include "JobScSqlDefines.h"
+#include <algorithm>
 
 JobScImpl::JobScImpl()
   : m_service_mutex{}
@@ -68,6 +69,11 @@ std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScI
         if (m_dao.Insert(account_id, row_data, result.second))
         {
             result.first = JobScResult::Success;
+            JOBSC_LOG_INFO("JobScImpl::Add - success account_id:%lu job_type:%d rid:%ld", account_id, job_type, result.second);
+        }
+        else
+        {
+            JOBSC_LOG_ERROR("JobScImpl::Add - failed to insert account_id:%lu job_type:%d", account_id, job_type);
         }
     }
     return result;
@@ -175,6 +181,7 @@ JobScResult JobScImpl::GetListByTypePage(
     if (result)
     {
         JOBSC_LOG_INFO("JobScImpl::GetListByTypePage - success total_count:%u", out_result.total_count);
+        out_items = CovertrToItems(row_list);
         ret = JobScResult::Success;
     }
     else
@@ -182,4 +189,38 @@ JobScResult JobScImpl::GetListByTypePage(
         JOBSC_LOG_ERROR("JobScImpl::GetListByTypePage - failed");
     }
     return ret;
+}
+
+std::vector<JobScItem> JobScImpl::CovertrToItems(const JobScRowList& rows)
+{
+    std::vector<JobScItem> items;
+    const std::vector<std::string> required_fields = {
+        kFieldRid,
+        kFieldJobType,
+        kFieldDescription,
+        kFieldSettings,
+        kFieldAddressList};
+    bool result = std::all_of(rows.cbegin(), rows.cend(), [this, &required_fields](const JobScRow& row) {
+        return m_dao.CheckRequiredFields(row, required_fields);
+    });
+    if (result)
+    {
+        for (const JobScRow& row : rows)
+        {
+            JobScItem item;
+            int64_t rid = row.at(kFieldRid);
+            item.SetRid(rid);
+            int32_t job_type = row.at(kFieldJobType);
+            JobScType jobsc_type = static_cast<JobScType>(job_type);
+            item.SetJobType(jobsc_type);
+            const std::string& description = row.at(kFieldDescription);
+            item.SetDescription(description);
+            const std::vector<uint8_t>& settings = row.at(kFieldSettings);
+            item.SetSettings(settings);
+            const std::vector<uint8_t>& addr_info = row.at(kFieldAddressList);
+            item.SetAddressList(addr_info);
+            items.emplace_back(std::move(item));
+        }
+    }
+    return items;
 }

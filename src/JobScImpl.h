@@ -31,6 +31,7 @@ class JobScImpl
     JobScImpl(JobScImpl&&) = delete;
     JobScImpl& operator=(JobScImpl&&) noexcept = delete;
     void Notify(JobScEventType event);
+    std::vector<JobScItem> CovertrToItems(const JobScRowList& rows);
 
   private:
     std::mutex m_service_mutex;

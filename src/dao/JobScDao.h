@@ -48,14 +48,14 @@ class JobScDao
         JobScPageResult& out_result,
         JobScRowList& out_list);
     uint64_t GetCountByType(uint64_t account_id, JobScType job_type);
+    bool CheckRequiredFields(
+        const JobScRow& row_data,
+        const std::vector<std::string>& required_fields);
 
   private:
     void BeginTransaction();
     void CommitTransaction();
     void RollbackTransaction();
-    bool CheckRequiredFields(
-        const JobScRow& row_data,
-        const std::vector<std::string>& required_fields);
     bool GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
     bool GetAllByKeywordPage(const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
     bool GetListByTypePage(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);

@@ -11,9 +11,9 @@ void JobScInitializer::Init(JobScDao& dao)
         db_access_ptr->SetDbPath(DB_NAME);
         db_access_ptr->SetUserVersion(1);
         db_access_ptr->SetUpgradeCallback(std::bind(&JobScInitializer::Upgrade, this, db_access_ptr, std::placeholders::_1, std::placeholders::_2));
+        dao.SetDbAccess(db_access_ptr);
         if (db_access_ptr->Init())
         {
-            dao.SetDbAccess(db_access_ptr);
             JOBSC_LOG_FORCE("JobScInitializer::Init() - db init success");
         }
         else
