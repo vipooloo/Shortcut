@@ -160,7 +160,6 @@ class JobScValue
     operator int64_t() const;
     operator uint64_t() const;
     operator std::string() const;
-    operator std::vector<uint8_t>() const;
     operator const std::vector<uint8_t>&() const;
 
   private:

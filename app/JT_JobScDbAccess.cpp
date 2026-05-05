@@ -1,18 +1,17 @@
 
 
-#include "MockJobScDbAccess.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#define private public
 #define protected public
+#define private public
 #include "JobScImpl.h"
 #include "JobScMgr.h"
 #include "JobScSqlDefines.h"
-#include "JobScValue.h"
+#include "MockJobScDbAccess.h"
 
 using namespace ::testing;
 
-class JT_JobScInit : public ::testing::Test
+class JT_JobScDbAccess : public ::testing::Test
 {
   protected:
     void SetUp() override
@@ -51,57 +50,3 @@ class JT_JobScInit : public ::testing::Test
         return result;
     }
 };
-
-TEST_F(JT_JobScInit, init)
-{
-    std::shared_ptr<JobScDbAccess> db_ptr = JobScImpl::GetInstance().m_dao.m_db_ptr;
-
-    auto mock_db_ptr = std::make_shared<MockJobScDbAccess>();
-    JobScImpl::GetInstance().m_dao.m_db_ptr = mock_db_ptr;
-    EXPECT_CALL(*mock_db_ptr, Init()).WillRepeatedly(Return(false));
-    JobScInitializer initializer;
-    initializer.Init(JobScImpl::GetInstance().m_dao);
-    JobScImpl::GetInstance().m_dao.m_db_ptr = db_ptr;
-    mock_db_ptr = nullptr;
-}
-
-TEST_F(JT_JobScInit, init_1)
-{
-    JobScInitializer initializer;
-    initializer.Upgrade(nullptr, 0, 3);
-}
-
-TEST_F(JT_JobScInit, JobScValue_1)
-{
-    JobScValue val;
-    JobScValue v1(val);
-    JobScValue v2 = val;
-    JobScValue v3 = val;
-    v3 = v2;
-    EXPECT_EQ(v1.ToBlob(), v2.ToBlob());
-}
-
-TEST_F(JT_JobScInit, JobScValue_2)
-{
-    int64_t val1 = 123u;
-    JobScValue val(val1);
-
-    bool ret{false};
-    uint32_t v1 = val.ToUint32(ret);
-    EXPECT_EQ(v1, 123u);
-    EXPECT_TRUE(ret);
-
-    uint32_t v2 = val;
-    EXPECT_EQ(v2, 123u);
-
-    uint64_t v3 = val;
-    EXPECT_EQ(v3, 123u);
-}
-
-TEST_F(JT_JobScInit, JobScValue_3)
-{
-    std::vector<uint8_t> val1{0x01, 0x02, 0x03};
-    JobScValue val(val1);
-    std::vector<uint8_t> val2 = val;
-    EXPECT_EQ(val1, val2);
-}

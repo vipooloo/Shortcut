@@ -1,3 +1,11 @@
+mkdir -p build
+cd build
+rm -rf *.db
+cmake ..
+make -j{nproc}
+./app/Myapp
+cd -
+
 # 1. 生成覆盖率数据文件
 lcov -c -d . -o coverage.info
 

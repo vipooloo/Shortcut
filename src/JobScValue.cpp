@@ -182,11 +182,6 @@ JobScValue::operator std::string() const
     return ToString(result);
 }
 
-JobScValue::operator std::vector<uint8_t>() const
-{
-    return ToBlob();
-}
-
 JobScValue::operator const std::vector<uint8_t>&() const
 {
     return ToBlob();

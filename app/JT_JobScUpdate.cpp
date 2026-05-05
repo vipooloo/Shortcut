@@ -57,3 +57,16 @@ TEST_F(JT_JobScUpdate, update)
     auto result = JobScMgr::Update(item);
     EXPECT_EQ(result, JobScResult::Failed);
 }
+
+TEST_F(JT_JobScUpdate, update1)
+{
+    auto observer = [](JobScEventType event) {
+        EXPECT_EQ(event, JobScEventType::Updated);
+    };
+    std::pair<JobScResult, JobScItem> result = AddRecord();
+    JobScItem item = result.second;
+    item.SetDescription("sdfasd");
+    auto res = JobScMgr::Update(item);
+    EXPECT_EQ(res, JobScResult::Success);
+    JobScMgr::RemoveObserver(observer);
+}

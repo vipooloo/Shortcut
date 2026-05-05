@@ -53,6 +53,9 @@ class JT_JobScDel : public ::testing::Test
 
 TEST_F(JT_JobScDel, del)
 {
+    auto observer = [](JobScEventType event) {
+        EXPECT_EQ(event, JobScEventType::Deleted);
+    };
     std::vector<int64_t> ids;
     {
         auto result = AddRecord();
@@ -74,6 +77,7 @@ TEST_F(JT_JobScDel, del)
     auto query_result = JobScMgr::Query(page_query, out_result, out_items);
     EXPECT_EQ(query_result, JobScResult::Success);
     EXPECT_EQ(out_items.size(), 0);
+    JobScMgr::RemoveObserver(observer);
 }
 
 TEST_F(JT_JobScDel, del_1)

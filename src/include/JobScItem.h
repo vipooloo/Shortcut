@@ -29,7 +29,18 @@ class JobScItem
       , m_address_list{}
     {}
     ~JobScItem() = default;
-    JobScItem(const JobScItem&) = delete;
+    JobScItem(const JobScItem& other)
+    {
+        if (this != &other)
+        {
+            m_rid = other.m_rid;
+            m_account_id = other.m_account_id;
+            m_job_type = other.m_job_type;
+            m_description = other.m_description;
+            m_settings = other.m_settings;
+            m_address_list = other.m_address_list;
+        }
+    }
     JobScItem& operator=(const JobScItem&) = delete;
     JobScItem& operator=(const JobScItem&& other) noexcept
     {

@@ -16,6 +16,7 @@ class MockJobScDbAccess : public JobScDbAccess
 
     MOCK_METHOD1(ExecuteSql, bool(const std::string& sql));
     MOCK_METHOD2(ExecuteSql, bool(const std::string& sql, const std::vector<JobScValue>& params));
+    MOCK_METHOD3(ExecuteSql, bool(const std::string& sql, const std::vector<JobScValue>& params, int32_t& change_cout));
 
     MOCK_METHOD0(GetLastInsertRowId, int64_t());
 

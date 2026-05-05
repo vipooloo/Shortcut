@@ -37,8 +37,6 @@ class JobScInitializer
      * @return 是否升级成功
      */
     bool Upgrade(const std::shared_ptr<JobScDbAccess>& db_access_ptr, int64_t old_ver, int64_t new_ver);
-
-  private:
 };
 
 #endif  // JOBSCINITIALIZER_H

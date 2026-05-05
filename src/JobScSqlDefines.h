@@ -78,5 +78,6 @@ constexpr char kFieldAddressList[] = "address_list";
 
 static constexpr uint32_t DB_SQL_BUFFER = 1024U;     ///< SQL缓冲区大小
 static constexpr uint64_t MAX_COUNT_PER_TYPE = 10u;  ///< 每种类型最大数
+static constexpr int32_t JOBSCDB_VERSION = 1;        ///< 数据库版本
 
 #endif  // JOBSCSQLDEFINES_H

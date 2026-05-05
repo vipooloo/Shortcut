@@ -9,13 +9,13 @@ void JobScInitializer::Init(JobScDao& dao)
     if (!db_access_ptr)
     {
         db_access_ptr = std::make_shared<JobScDbAccess>();
+        db_access_ptr->SetDbPath(DB_NAME);
+        db_access_ptr->SetUserVersion(JOBSCDB_VERSION);
+        db_access_ptr->SetUpgradeCallback(std::bind(&JobScInitializer::Upgrade, this, db_access_ptr, std::placeholders::_1, std::placeholders::_2));
         dao.SetDbAccess(db_access_ptr);
     }
     if (db_access_ptr)
     {
-        db_access_ptr->SetDbPath(DB_NAME);
-        db_access_ptr->SetUserVersion(1);
-        db_access_ptr->SetUpgradeCallback(std::bind(&JobScInitializer::Upgrade, this, db_access_ptr, std::placeholders::_1, std::placeholders::_2));
         if (db_access_ptr->Init())
         {
             JOBSC_LOG_FORCE("JobScInitializer::Init() - db init success");
@@ -36,7 +36,7 @@ bool JobScInitializer::Upgrade(const std::shared_ptr<JobScDbAccess>& db_access_p
         JOBSC_LOG_FORCE("JobScInitializer::Upgrade() - upgrade from %lld to %lld", old_ver, ver);
         if (ver == 1)
         {
-            if (!db_access_ptr->ExecuteSql(DB_SQL_INIT))
+            if (!db_access_ptr || !db_access_ptr->ExecuteSql(DB_SQL_INIT))
             {
                 result = false;
                 JOBSC_LOG_ERROR("JobScInitializer::Upgrade() - execute sql failed for version %lld", ver);
