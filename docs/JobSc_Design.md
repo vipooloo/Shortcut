@@ -5,7 +5,7 @@
 ### 1.1 模块简介
 
 作业调度模块（JobSc - Job Scheduler）是快捷方式管理系统的核心组件，负责管理和维护用户的作业配置信息。该模块提供作业的增删改查功能，支持多种作业类型（如扫描到邮箱、FTP、SMB、USB等），并提供观察者模式用于事件通知。
-****
+
 ### 1.2 功能特性
 
 - **作业管理**：支持作业的添加、删除、修改、查询操作
@@ -26,8 +26,8 @@
 │                         应用层 (JobScMgr)                           │
 │                  静态接口，对外提供统一入口                          │
 └─────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      实现层 (JobScImpl)                             │
 │               单例模式，业务逻辑处理，线程同步                       │
@@ -36,8 +36,8 @@
 │  │ 数据库初始化    │  │ 数据访问对象  │  │ m_observers           │  │
 │  └────────────────┘  └────────────────┘  └────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        数据访问层 (DAO)                            │
 │                          JobScDao                                   │
@@ -45,9 +45,9 @@
 │  │ JobScTransGuard│  │ CRUD操作       │  │ 分页查询               │  │
 │  │ 事务守卫       │  │ Insert/Delete  │  │ GetListByTypePage      │  │
 │  └────────────────┘  │ Update         │  └────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+└───────────────────────────────────��─────────────────────────────────┘
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      数据库访问层 (DAL)                            │
 │                      JobScDbAccess                                   │
@@ -56,8 +56,8 @@
 │  │ 数据库实例     │  │ ExecuteSql    │  │ QueryPageUniversal     │  │
 │  └────────────────┘  └────────────────┘  └────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
-                                  │
-                                  ▼
+                                   │
+                                   ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         SQLite 数据库                               │
 │                        shortcut.db                                  │
@@ -111,6 +111,11 @@ src/
 ├── JobScTypes.h                      # 类型别名定义
 ├── JobScSqlDefines.h                  # SQL定义
 └── JobScLogger.h                      # 日志宏定义
+
+app/
+├── main.cpp                          # 入口文件
+├── JT_JobScTest.cpp                  # 单元测试
+└── CMakeLists.txt                   # 构建配置
 ```
 
 ---
@@ -132,10 +137,10 @@ class JobScMgr
 public:
     // 添加作业
     static std::pair<JobScResult, JobScItem> Add(uint64_t account_id,
-                                                 JobScType type,
-                                                 const std::string& description,
-                                                 const std::vector<uint8_t>& job_settings,
-                                                 const std::vector<uint8_t>& addr_info);
+                                         JobScType type,
+                                         const std::string& description,
+                                         const std::vector<uint8_t>& job_settings,
+                                         const std::vector<uint8_t>& addr_info);
     
     // 删除作业
     static JobScResult Delete(const std::vector<int64_t>& rids);
@@ -148,8 +153,8 @@ public:
     
     // 分页查询
     static JobScResult GetListByTypePage(const JobScPageQuery& page_query, 
-                                         JobScPageResult& out_result, 
-                                         std::vector<JobScItem>& out_items);
+                                       JobScPageResult& out_result, 
+                                       std::vector<JobScItem>& out_items);
     
     // 观察者管理
     static void AddObserver(const JobScObserver& observer);
@@ -214,7 +219,7 @@ public:
 **设计要点**：
 - 构造时自动开启事务
 - 析构时自动回滚未提交的事务
-- 手动调用Commit()提交事务
+- ���动���用Commit()提交事务
 
 ### 4.6 JobScDbAccess - 数据库访问层
 
@@ -505,9 +510,44 @@ JobScMgr::Add(123456789, item);
 
 ---
 
-## 11. 编译与运行
+## 11. 单元测试
 
-### 11.1 编译
+### 11.1 测试文件
+
+- `app/JT_JobScTest.cpp` - 使用Google Test框架的单元测试
+
+### 11.2 测试套件
+
+| 测试类 | 覆盖范围 |
+|--------|----------|
+| JobScItemTest | JobScItem构造函数、getter/setter、移动语义 |
+| JobScPageQueryTest | 分页查询条件、枚举值、常量验证 |
+| JobScObserverTest | 观察者模式添加/移除/多个观察者 |
+| JobScMgrAddTest | JobScMgr::Add() - 各种作业类型、空参数、大数据 |
+| JobScMgrDeleteTest | JobScMgr::Delete() / DeleteByType() |
+| JobScMgrUpdateTest | JobScMgr::Update() |
+| JobScMgrGetListTest | JobScMgr::GetListByTypePage() - 分页/关键字/排序 |
+| JobScMgrIntegrationTest | 增删改查完整流程测试 |
+| JobScMgrEdgeCaseTest | 边界情况测试 |
+| JobScPageResultTest | 分页结果结构体测试 |
+
+### 11.3 运行测试
+
+```bash
+# 构建项目
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+make -j4
+
+# 运行测试
+./app/Myapp
+```
+
+---
+
+## 12. 编译与运行
+
+### 12.1 编译
 
 ```bash
 mkdir build
@@ -516,18 +556,35 @@ cmake ..
 make
 ```
 
-### 11.2 运行测试
+### 12.2 运行
 
 ```bash
-./app/JT_Test
+./app/Myapp
 ```
 
 ---
 
-## 12. 设计原则
+## 13. 设计原则
 
 1. **单一职责**：每个类只负责一项功能
 2. **依赖倒置**：高层模块不依赖低层模块，通过抽象接口交互
 3. **最小知识**：只与直接相关的类交互
 4. **开闭原则**：对扩展开放，对修改关闭
 5. **RAII**：资源获取即初始化，使用智能指针和事务守卫管理资源
+
+---
+
+## 14. 依赖关系
+
+### 14.1 第三方库
+
+| 库名 | 版本 | 用途 |
+|------|------|------|
+| SQLiteCpp | latest | SQLite数据库封装 |
+| googletest | latest | 单元测试框架 |
+
+### 14.2 系统库
+
+- pthread - 线程库
+- dl - 动态链接库
+- m - 数学库
