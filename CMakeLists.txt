@@ -13,6 +13,26 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
+# ===================== 新增：ASAN 与覆盖率选项 =====================
+# 可通过 cmake 命令行开启：-DENABLE_ASAN=ON  -DENABLE_COVERAGE=ON
+option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+option(ENABLE_COVERAGE "Enable code coverage" ON)
+
+# ASAN 编译选项（仅Debug + GCC/Clang）
+if(ENABLE_ASAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "AddressSanitizer enabled")
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+    add_link_options(-fsanitize=address)
+endif()
+
+# 代码覆盖率选项（仅Debug + GCC/Clang）
+if(ENABLE_COVERAGE AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "Code coverage enabled")
+    add_compile_options(-fprofile-arcs -ftest-coverage)
+    add_link_options(-fprofile-arcs -ftest-coverage)
+endif()
+# ==================================================================
+
 option(SQLITECPP_RUN_CPPCHECK OFF)
 # 你的第三方库根目录
 set(SQLITE_ROOT 

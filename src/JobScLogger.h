@@ -1,3 +1,9 @@
+/**
+ * @file JobScLogger.h
+ * @brief 日志打印功能定义
+ * @details 提供统一的可变参数日志打印接口，支持INFO、WARN、ERROR级别
+ */
+
 #ifndef JOBSCLOGGER_H
 #define JOBSCLOGGER_H
 

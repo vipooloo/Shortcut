@@ -1,9 +1,21 @@
+/**
+ * @file JobScSqlDefines.h
+ * @brief 数据库SQL定义
+ * @details 定义数据库表结构、字段名称和SQL语句常量
+ */
+
 #ifndef JOBSCSQLDEFINES_H
 #define JOBSCSQLDEFINES_H
 
 #include <cstdint>
 
+/**
+ * @brief 数据库文件名
+ */
 static constexpr char DB_NAME[] = "shortcut.db";
+/**
+ * @brief 数据库初始化SQL脚本
+ */
 static constexpr char DB_SQL_INIT[] = R"(
     CREATE TABLE IF NOT EXISTS shortcut (
         rid            INTEGER PRIMARY KEY,
@@ -25,26 +37,47 @@ static constexpr char DB_SQL_INIT[] = R"(
     END;
 )";
 
-static constexpr char DB_SQL_PRAGMA_USER_VERSION[] = "PRAGMA user_version;";
-static constexpr char DB_SQL_BEGIN_TRANSACTION[] = "BEGIN TRANSACTION;";
-static constexpr char DB_SQL_COMMIT_TRANSACTION[] = "COMMIT TRANSACTION;";
-static constexpr char DB_SQL_ROLLBACK_TRANSACTION[] = "ROLLBACK TRANSACTION;";
-static constexpr char DB_SQL_FOREIGN_KEYS[] = "PRAGMA foreign_keys = ON;";
-static constexpr char DB_SQL_JOURNAL_MODE[] = "PRAGMA journal_mode = DELETE;";
-static constexpr char DB_SQL_SYNCHRONOUS[] = "PRAGMA synchronous = FULL;";
-static constexpr char DB_SQL_AUTO_VACUUM[] = "PRAGMA auto_vacuum = FULL;";
-static constexpr char DB_SQL_TEMP_STORE[] = "PRAGMA temp_store = MEMORY;";
+static constexpr char DB_SQL_PRAGMA_USER_VERSION[] = "PRAGMA user_version;";    ///< 获取数据库版本
+static constexpr char DB_SQL_BEGIN_TRANSACTION[] = "BEGIN TRANSACTION;";        ///< 开始事务
+static constexpr char DB_SQL_COMMIT_TRANSACTION[] = "COMMIT TRANSACTION;";      ///< 提交事务
+static constexpr char DB_SQL_ROLLBACK_TRANSACTION[] = "ROLLBACK TRANSACTION;";  ///< 回滚事务
+static constexpr char DB_SQL_FOREIGN_KEYS[] = "PRAGMA foreign_keys = ON;";      ///< 启用外键约束
+static constexpr char DB_SQL_JOURNAL_MODE[] = "PRAGMA journal_mode = DELETE;";  ///< 日志模式
+static constexpr char DB_SQL_SYNCHRONOUS[] = "PRAGMA synchronous = FULL;";      ///< 同步模式
+static constexpr char DB_SQL_AUTO_VACUUM[] = "PRAGMA auto_vacuum = FULL;";      ///< 自动清理
+static constexpr char DB_SQL_TEMP_STORE[] = "PRAGMA temp_store = MEMORY;";      ///< 临时表存储
 
+/**
+ * @brief 数据库表名
+ */
 constexpr char kTableName[] = "shortcut";
+/**
+ * @brief 字段名: 主键ID
+ */
 constexpr char kFieldRid[] = "rid";
+/**
+ * @brief 字段名: 账号ID
+ */
 constexpr char kFieldAccountId[] = "account_id";
+/**
+ * @brief 字段名: 作业类型
+ */
 constexpr char kFieldJobType[] = "job_type";
+/**
+ * @brief 字段名: 描述
+ */
 constexpr char kFieldDescription[] = "description";
+/**
+ * @brief 字段名: 设置
+ */
 constexpr char kFieldSettings[] = "settings";
+/**
+ * @brief 字段名: 地址列表
+ */
 constexpr char kFieldAddressList[] = "address_list";
 
-static constexpr uint32_t DB_SQL_BUFFER = 1024U;
-static constexpr int64_t INVALID_RID = 0;
-static constexpr uint64_t MAX_COUNT_PER_TYPE = 10u;
+static constexpr uint32_t DB_SQL_BUFFER = 1024U;     ///< SQL缓冲区大小
+static constexpr int64_t INVALID_RID = 0;            ///< 无效的主键ID
+static constexpr uint64_t MAX_COUNT_PER_TYPE = 10u;  ///< 每种类型最大数
 
 #endif  // JOBSCSQLDEFINES_H
