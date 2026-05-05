@@ -25,13 +25,13 @@ class JobScDbAccess
      * @brief 默认构造函数
      */
     JobScDbAccess();
-    ~JobScDbAccess() = default;
+    virtual ~JobScDbAccess() = default;
 
     /**
      * @brief 初始化数据库
      * @return 是否初始化成功
      */
-    bool Init();
+    virtual bool Init();
     /**
      * @brief 设置数据库路径
      * @param path 数据库文件路径
@@ -62,19 +62,19 @@ class JobScDbAccess
      * @param sql SQL语句
      * @return 是否执行成功
      */
-    bool ExecuteSql(const std::string& sql);
+    virtual bool ExecuteSql(const std::string& sql);
     /**
      * @brief 执行带参数的SQL语句
      * @param sql SQL语句
      * @param params 参数列表
      * @return 是否执行成功
      */
-    bool ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params);
+    virtual bool ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params);
     /**
      * @brief 获取最后插入行的ID
      * @return 最后插入行的ID
      */
-    int64_t GetLastInsertRowId();
+    virtual int64_t GetLastInsertRowId();
 
     /**
      * @brief 查询SQL语句
@@ -82,7 +82,7 @@ class JobScDbAccess
      * @param out_rows 输出行列表
      * @return 是否查询成功
      */
-    bool QuerySql(const std::string& sql, JobScRowList& out_rows);
+    virtual bool QuerySql(const std::string& sql, JobScRowList& out_rows);
     /**
      * @brief 带参数查询SQL语句
      * @param sql SQL语句
@@ -90,7 +90,7 @@ class JobScDbAccess
      * @param out_rows 输出行列表
      * @return 是否查询成功
      */
-    bool QuerySql(const std::string& sql, const std::vector<JobScValue>& params, JobScRowList& out_rows);
+    virtual bool QuerySql(const std::string& sql, const std::vector<JobScValue>& params, JobScRowList& out_rows);
 
     /**
      * @brief 开始事务
@@ -114,11 +114,11 @@ class JobScDbAccess
      * @param out_rows 输出行列表
      * @return 是否查询成功
      */
-    bool QueryPageUniversal(const std::string& sql_main,
-                            const std::vector<JobScValue>& params,
-                            const JobScDbPageQuery& page_query,
-                            JobScPageResult& out_result,
-                            JobScRowList& out_rows);
+    virtual bool QueryPageUniversal(const std::string& sql_main,
+                                    const std::vector<JobScValue>& params,
+                                    const JobScDbPageQuery& page_query,
+                                    JobScPageResult& out_result,
+                                    JobScRowList& out_rows);
 
   private:
     JobScDbAccess(const JobScDbAccess&) = delete;
@@ -171,10 +171,10 @@ class JobScDbAccess
                        JobScRowList& out_rows);
 
   private:
-    std::string m_db_path;                              ///< 数据库文件路径
-    int64_t m_user_version;                             ///< 数据库版本号
-    std::unique_ptr<SQLite::Database> m_db_ptr;         ///< SQLite数据库对象
-    UpgradeCallback m_upgrade_callback;                 ///< 数据库升级回调函数
+    std::string m_db_path;                       ///< 数据库文件路径
+    int64_t m_user_version;                      ///< 数据库版本号
+    std::unique_ptr<SQLite::Database> m_db_ptr;  ///< SQLite数据库对象
+    UpgradeCallback m_upgrade_callback;          ///< 数据库升级回调函数
 };
 
 #endif  // JOBSCDBACCESS_H

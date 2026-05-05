@@ -66,7 +66,7 @@ std::pair<JobScResult, JobScItem> JobScImpl::Add(uint64_t account_id,
                                                  const std::vector<uint8_t>& job_settings,
                                                  const std::vector<uint8_t>& addr_info)
 {
-    JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu type:%d description:%s", account_id, type, description.c_str());
+    JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu type:%d", account_id, type);
     std::pair<JobScResult, JobScItem> result{JobScResult::Failed, JobScItem{}};
     // 参数检查
     if ((type > JobScType::None) && (type < JobScType::All) && (!description.empty()))
