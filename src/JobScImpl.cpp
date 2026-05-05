@@ -202,8 +202,9 @@ JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
     return result;
 }
 
-JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
+JobScResult JobScImpl::Update(const JobScItem& item)
 {
+    int64_t rid = item.GetRid();
     JOBSC_LOG_INFO("JobScImpl::Update - rid:%ld", rid);
     JobScResult result{JobScResult::Failed};
 
@@ -219,7 +220,7 @@ JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
     {
         result = JobScResult::Success;
         JOBSC_LOG_INFO("JobScImpl::Delete - success");
-        Notify(JobScEventType::Deleted);
+        Notify(JobScEventType::Updated);
     }
     else
     {

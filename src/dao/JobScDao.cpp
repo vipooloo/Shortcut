@@ -138,10 +138,19 @@ bool JobScDao::Update(int64_t rid, const JobScRow& row_data)
             params.push_back(row_data.at(field));
         }
         params.emplace_back(rid);
-        result = m_db_ptr->ExecuteSql(sql, params);
+        int32_t affected_rows{0};
+        result = m_db_ptr->ExecuteSql(sql, params, affected_rows);
         if (!result)
         {
             JOBSC_LOG_ERROR("JobScDao::Update - execute sql failed");
+        }
+        else if (0 == affected_rows)
+        {
+            JOBSC_LOG_ERROR("JobScDao::Update - no rows updated");
+            result = false;
+        }
+        else
+        {
         }
     } while (false);
     return result;

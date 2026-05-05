@@ -52,11 +52,10 @@ class JobScMgr
 
     /**
      * @brief 更新作业
-     * @param rid 作业记录ID
      * @param item 作业项
      * @return 操作结果
      */
-    static JobScResult Update(int64_t rid, const JobScItem& item);
+    static JobScResult Update(const JobScItem& item);
 
     /**
      * @brief 分页查询作业列表

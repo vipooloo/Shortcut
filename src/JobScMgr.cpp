@@ -20,9 +20,9 @@ JobScResult JobScMgr::DeleteByType(const std::vector<JobScType>& types)
     return JobScImpl::GetInstance().DeleteByType(types);
 }
 
-JobScResult JobScMgr::Update(int64_t rid, const JobScItem& item)
+JobScResult JobScMgr::Update(const JobScItem& item)
 {
-    return JobScImpl::GetInstance().Update(rid, item);
+    return JobScImpl::GetInstance().Update(item);
 }
 
 JobScResult JobScMgr::Query(

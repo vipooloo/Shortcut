@@ -32,6 +32,7 @@ class JobScDbAccess
      * @return 是否初始化成功
      */
     virtual bool Init();
+
     /**
      * @brief 设置数据库路径
      * @param path 数据库文件路径
@@ -40,6 +41,7 @@ class JobScDbAccess
     {
         m_db_path = path;
     }
+
     /**
      * @brief 设置数据库版本
      * @param version 数据库版本号
@@ -48,6 +50,7 @@ class JobScDbAccess
     {
         m_user_version = version;
     }
+
     /**
      * @brief 设置升级回调
      * @param cb 升级回调函数
@@ -63,6 +66,7 @@ class JobScDbAccess
      * @return 是否执行成功
      */
     virtual bool ExecuteSql(const std::string& sql);
+
     /**
      * @brief 执行带参数的SQL语句
      * @param sql SQL语句
@@ -70,6 +74,15 @@ class JobScDbAccess
      * @return 是否执行成功
      */
     virtual bool ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params);
+    /**
+     * @brief 执行带参数的SQL语句
+     * @param sql SQL语句
+     * @param params 参数列表
+     * @param change_coutt 更新行数
+     * @return 是否执行成功
+     */
+    virtual bool ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params, int32_t& change_cout);
+
     /**
      * @brief 获取最后插入行的ID
      * @return 最后插入行的ID
@@ -83,6 +96,7 @@ class JobScDbAccess
      * @return 是否查询成功
      */
     virtual bool QuerySql(const std::string& sql, JobScRowList& out_rows);
+
     /**
      * @brief 带参数查询SQL语句
      * @param sql SQL语句
@@ -96,10 +110,12 @@ class JobScDbAccess
      * @brief 开始事务
      */
     void BeginTransaction();
+
     /**
      * @brief 提交事务
      */
     void CommitTransaction();
+
     /**
      * @brief 回滚事务
      */
@@ -131,18 +147,21 @@ class JobScDbAccess
      * @return 是否获取成功
      */
     bool GetDbVersion(int64_t& out_version);
+
     /**
      * @brief 设置数据库版本
      * @param version 版本号
      * @return 是否设置成功
      */
     bool SetDbVersion(int64_t version);
+
     /**
      * @brief 封装列值
      * @param col 数据库列
      * @return 封装后的值
      */
     static JobScValue WrapColumnValue(const SQLite::Column& col);
+
     /**
      * @brief 查询总记录数
      * @param sql_main 主SQL语句
@@ -153,6 +172,7 @@ class JobScDbAccess
     bool QueryTotalCount(const std::string& sql_main,
                          const std::vector<JobScValue>& params,
                          uint32_t& total);
+
     /**
      * @brief 分页查询数据
      * @param sql_main 主SQL语句

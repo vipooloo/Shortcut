@@ -65,6 +65,7 @@ class JobScDao
      */
     explicit JobScDao(const std::shared_ptr<JobScDbAccess>& db_ptr);
     ~JobScDao() = default;
+
     /**
      * @brief 设置数据库访问对象
      * @param db_ptr 数据库访问指针
@@ -73,6 +74,17 @@ class JobScDao
     {
         m_db_ptr = db_ptr;
     }
+
+    /**
+     * @brief 获取数据库访问对象
+     * 
+     * @return std::shared_ptr<JobScDbAccess>  数据库访问指针
+     */
+    std::shared_ptr<JobScDbAccess> GetDbAccess() const
+    {
+        return m_db_ptr;
+    }
+
     /**
      * @brief 插入记录
      * @param account_id 账号ID
@@ -81,18 +93,21 @@ class JobScDao
      * @return 是否成功
      */
     bool Insert(uint64_t account_id, const JobScRow& row_data, int64_t& out_id);
+
     /**
      * @brief 删除记录
      * @param rid 记录ID
      * @return 是否成功
      */
     bool Delete(int64_t rid);
+
     /**
      * @brief 按类型删除记录
      * @param type 作业类型
      * @return 是否成功
      */
     bool DeleteByType(JobScType type);
+
     /**
      * @brief 更新记录
      * @param rid 记录ID
@@ -116,6 +131,7 @@ class JobScDao
         const JobScDbPageQuery& page_query,
         JobScPageResult& out_result,
         JobScRowList& out_list);
+
     /**
      * @brief 获取指定类型的记录数量
      * @param account_id 账号ID
@@ -123,6 +139,7 @@ class JobScDao
      * @return 记录数量
      */
     uint64_t GetCountByType(uint64_t account_id, JobScType job_type);
+
     /**
      * @brief 检查必填字段
      * @param row_data 行数据
@@ -138,14 +155,17 @@ class JobScDao
      * @brief 开始事务
      */
     void BeginTransaction();
+
     /**
      * @brief 提交事务
      */
     void CommitTransaction();
+
     /**
      * @brief 回滚事务
      */
     void RollbackTransaction();
+
     /**
      * @brief 获取全部分页数据
      * @param page_query 分页查询条件
@@ -154,6 +174,7 @@ class JobScDao
      * @return 是否成功
      */
     bool GetAllPage(const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+
     /**
      * @brief 关键字查询分页数据
      * @param keyword 关键字
@@ -163,6 +184,7 @@ class JobScDao
      * @return 是否成功
      */
     bool GetAllByKeywordPage(const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+
     /**
      * @brief 按类型查询分页数据
      * @param type 作业类型
@@ -172,6 +194,7 @@ class JobScDao
      * @return 是否成功
      */
     bool Query(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+
     /**
      * @brief 按类型和关键字查询分页数据
      * @param type 作业类型

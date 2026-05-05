@@ -69,11 +69,10 @@ class JobScImpl
 
     /**
      * @brief 更新作业
-     * @param rid 作业记录ID
      * @param item 作业项
      * @return 操作结果
      */
-    JobScResult Update(int64_t rid, const JobScItem& item);
+    JobScResult Update(const JobScItem& item);
 
     /**
      * @brief 分页查询作业列表

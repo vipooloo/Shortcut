@@ -5,13 +5,17 @@
 
 void JobScInitializer::Init(JobScDao& dao)
 {
-    std::shared_ptr<JobScDbAccess> db_access_ptr = std::make_shared<JobScDbAccess>();
+    std::shared_ptr<JobScDbAccess> db_access_ptr = dao.GetDbAccess();
+    if (!db_access_ptr)
+    {
+        db_access_ptr = std::make_shared<JobScDbAccess>();
+        dao.SetDbAccess(db_access_ptr);
+    }
     if (db_access_ptr)
     {
         db_access_ptr->SetDbPath(DB_NAME);
         db_access_ptr->SetUserVersion(1);
         db_access_ptr->SetUpgradeCallback(std::bind(&JobScInitializer::Upgrade, this, db_access_ptr, std::placeholders::_1, std::placeholders::_2));
-        dao.SetDbAccess(db_access_ptr);
         if (db_access_ptr->Init())
         {
             JOBSC_LOG_FORCE("JobScInitializer::Init() - db init success");

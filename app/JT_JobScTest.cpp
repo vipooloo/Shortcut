@@ -327,20 +327,6 @@ class JobScMgrUpdateTest : public ::testing::Test
     }
 };
 
-TEST_F(JobScMgrUpdateTest, UpdateExistingJob)
-{
-    JobScItem item;
-    item.SetRid(test_rid);
-    item.SetAccountId(1);
-    item.SetJobType(JobScType::ScanToFTP);
-    item.SetDescription("Updated");
-    item.SetSettings({0x02});
-    item.SetAddressList({0x03});
-
-    auto result = JobScMgr::Update(test_rid, item);
-    EXPECT_EQ(result, JobScResult::Success);
-}
-
 TEST_F(JobScMgrUpdateTest, UpdateNonExistingJob)
 {
     JobScItem item;
@@ -349,8 +335,8 @@ TEST_F(JobScMgrUpdateTest, UpdateNonExistingJob)
     item.SetJobType(JobScType::ScanToEmail);
     item.SetDescription("Updated");
 
-    auto result = JobScMgr::Update(99999, item);
-    EXPECT_EQ(result, JobScResult::Success);
+    auto result = JobScMgr::Update(item);
+    EXPECT_EQ(result, JobScResult::Failed);
 }
 
 TEST_F(JobScMgrUpdateTest, UpdateWithEmptyDescription)
@@ -361,7 +347,7 @@ TEST_F(JobScMgrUpdateTest, UpdateWithEmptyDescription)
     item.SetJobType(JobScType::ScanToEmail);
     item.SetDescription("");
 
-    auto result = JobScMgr::Update(test_rid, item);
+    auto result = JobScMgr::Update(item);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
@@ -496,7 +482,7 @@ TEST_F(JobScMgrIntegrationTest, AddUpdateGetListDelete)
     item.SetDescription("Updated Integration");
     item.SetSettings({0x02});
     item.SetAddressList({0x03});
-    auto update_result = JobScMgr::Update(test_rid, item);
+    auto update_result = JobScMgr::Update(item);
     EXPECT_EQ(update_result, JobScResult::Success);
 
     JobScPageQuery query;
@@ -613,7 +599,7 @@ TEST_F(JobScMgrEdgeCaseTest, UpdateWithEmptySettings)
     item.SetSettings({});
     item.SetAddressList({});
 
-    auto update_result = JobScMgr::Update(rid, item);
+    auto update_result = JobScMgr::Update(item);
     EXPECT_EQ(update_result, JobScResult::Success);
 
     JobScMgr::Delete({rid});

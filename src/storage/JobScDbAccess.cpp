@@ -195,6 +195,16 @@ bool JobScDbAccess::ExecuteSql(const std::string& sql, const std::vector<JobScVa
     return result;
 }
 
+bool JobScDbAccess::ExecuteSql(const std::string& sql, const std::vector<JobScValue>& params, int32_t& change_cout)
+{
+    bool result = ExecuteSql(sql, params);
+    if (m_db_ptr && result)
+    {
+        change_cout = m_db_ptr->getChanges();
+    }
+    return result;
+}
+
 bool JobScDbAccess::QuerySql(const std::string& sql, JobScRowList& out_rows)
 {
     return QuerySql(sql, std::vector<JobScValue>(), out_rows);
