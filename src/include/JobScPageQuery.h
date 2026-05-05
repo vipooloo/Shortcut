@@ -21,7 +21,7 @@ class JobScPageQuery
   public:
     JobScPageQuery()
       : m_keyword{""}
-      , m_type{JobScType::None}
+      , m_type{JobScType::All}
       , m_order_type{JobScOrderType::ASC}
       , m_page_index{JOBSC_PAGE_DEFAULT_INDEX}
       , m_page_size{JOBSC_PAGE_DEFAULT_SIZE}

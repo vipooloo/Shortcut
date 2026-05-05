@@ -50,8 +50,8 @@ class JobScDao
         JobScTransGuard& operator=(JobScTransGuard&&) noexcept = delete;
 
       private:
-        JobScDao& m_dao;         ///< 数据访问对象引用
-        bool m_committed;        ///< 事务是否已提交
+        JobScDao& m_dao;   ///< 数据访问对象引用
+        bool m_committed;  ///< 事务是否已提交
     };
 
   public:
@@ -110,7 +110,7 @@ class JobScDao
      * @param out_list 输出记录列表
      * @return 是否成功
      */
-    bool GetListByTypePage(
+    bool Query(
         const std::string& keyword,
         JobScType type,
         const JobScDbPageQuery& page_query,
@@ -171,7 +171,7 @@ class JobScDao
      * @param out_list 输出记录列表
      * @return 是否成功
      */
-    bool GetListByTypePage(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
+    bool Query(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
     /**
      * @brief 按类型和关键字查询分页数据
      * @param type 作业类型
@@ -184,7 +184,7 @@ class JobScDao
     bool GetListByTypeAndKeywordPage(JobScType type, const std::string& keyword, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list);
 
   private:
-    std::shared_ptr<JobScDbAccess> m_db_ptr; ///< 数据库访问对象指针
+    std::shared_ptr<JobScDbAccess> m_db_ptr;
 };
 
 #endif  // JOBSCDAO_H

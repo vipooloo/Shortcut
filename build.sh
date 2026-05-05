@@ -7,6 +7,8 @@ lcov --remove coverage.info \
     "*/third_party/*" \
     "*/build/*" \
     "*/test/*" \
+    "*/app/*" \
+    "*/src/*JobScLogger.*" \
     -o coverage_filtered.info
 
 # 3. 生成 HTML 报告

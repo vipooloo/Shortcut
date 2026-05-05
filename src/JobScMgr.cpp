@@ -25,12 +25,12 @@ JobScResult JobScMgr::Update(int64_t rid, const JobScItem& item)
     return JobScImpl::GetInstance().Update(rid, item);
 }
 
-JobScResult JobScMgr::GetListByTypePage(
+JobScResult JobScMgr::Query(
     const JobScPageQuery& page_query,
     JobScPageResult& out_result,
     std::vector<JobScItem>& out_items)
 {
-    return JobScImpl::GetInstance().GetListByTypePage(page_query, out_result, out_items);
+    return JobScImpl::GetInstance().Query(page_query, out_result, out_items);
 }
 
 void JobScMgr::AddObserver(const JobScObserver& observer)

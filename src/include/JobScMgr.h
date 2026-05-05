@@ -65,7 +65,7 @@ class JobScMgr
      * @param out_items 输出作业列表
      * @return 操作结果
      */
-    static JobScResult GetListByTypePage(const JobScPageQuery& page_query, JobScPageResult& out_result, std::vector<JobScItem>& out_items);
+    static JobScResult Query(const JobScPageQuery& page_query, JobScPageResult& out_result, std::vector<JobScItem>& out_items);
 
     /**
      * @brief 添加作业观察者

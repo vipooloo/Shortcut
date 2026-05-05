@@ -210,7 +210,7 @@ JobScResult JobScImpl::Update(int64_t rid, const JobScItem& item)
     return result;
 }
 
-JobScResult JobScImpl::GetListByTypePage(
+JobScResult JobScImpl::Query(
     const JobScPageQuery& page_query,
     JobScPageResult& out_result,
     std::vector<JobScItem>& out_items)
@@ -219,13 +219,13 @@ JobScResult JobScImpl::GetListByTypePage(
     JobScOrderType order_type = page_query.GetOrderType();
     uint32_t page_index = page_query.GetPageIndex();
     uint32_t page_size = page_query.GetPageSize();
-    JOBSC_LOG_INFO("JobScImpl::GetListByTypePage - order_type:%d page_index:%u page_size:%u", static_cast<int32_t>(order_type), page_index, page_size);
+    JOBSC_LOG_INFO("JobScImpl::Query - order_type:%d page_index:%u page_size:%u", static_cast<int32_t>(order_type), page_index, page_size);
 
     JobScRowList row_list;
     bool result{false};
     {
         std::lock_guard<std::mutex> lock(m_service_mutex);
-        result = m_dao.GetListByTypePage(
+        result = m_dao.Query(
             page_query.GetKeyword(),
             page_query.GetType(),
             JobScDbPageQuery{kFieldRid, page_query.GetOrderType(), page_query.GetPageIndex(), page_query.GetPageSize()},
@@ -234,13 +234,13 @@ JobScResult JobScImpl::GetListByTypePage(
     }
     if (result)
     {
-        JOBSC_LOG_INFO("JobScImpl::GetListByTypePage - success total_count:%u", out_result.total_count);
+        JOBSC_LOG_INFO("JobScImpl::Query - success total_count:%u", out_result.total_count);
         out_items = CovertrToItems(row_list);
         ret = JobScResult::Success;
     }
     else
     {
-        JOBSC_LOG_ERROR("JobScImpl::GetListByTypePage - failed");
+        JOBSC_LOG_ERROR("JobScImpl::Query - failed");
     }
     return ret;
 }

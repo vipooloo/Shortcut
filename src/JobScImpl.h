@@ -82,7 +82,7 @@ class JobScImpl
      * @param out_items 输出作业列表
      * @return 操作结果
      */
-    JobScResult GetListByTypePage(
+    JobScResult Query(
         const JobScPageQuery& page_query,
         JobScPageResult& out_result,
         std::vector<JobScItem>& out_items);

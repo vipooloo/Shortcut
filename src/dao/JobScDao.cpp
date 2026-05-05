@@ -165,7 +165,7 @@ bool JobScDao::CheckRequiredFields(
     return all_fields_exist;
 }
 
-bool JobScDao::GetListByTypePage(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+bool JobScDao::Query(const std::string& keyword, JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
 {
     bool result{false};
 
@@ -186,7 +186,7 @@ bool JobScDao::GetListByTypePage(const std::string& keyword, JobScType type, con
         {
             if (keyword.empty())
             {
-                result = GetListByTypePage(type, page_query, out_result, out_list);
+                result = Query(type, page_query, out_result, out_list);
             }
             else
             {
@@ -196,7 +196,7 @@ bool JobScDao::GetListByTypePage(const std::string& keyword, JobScType type, con
     }
     else
     {
-        JOBSC_LOG_ERROR("JobScDao::GetListByTypePage - database not initialized");
+        JOBSC_LOG_ERROR("JobScDao::Query - database not initialized");
     }
 
     return result;
@@ -237,7 +237,7 @@ bool JobScDao::GetAllByKeywordPage(const std::string& keyword, const JobScDbPage
     return result;
 }
 
-bool JobScDao::GetListByTypePage(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
+bool JobScDao::Query(JobScType type, const JobScDbPageQuery& page_query, JobScPageResult& out_result, JobScRowList& out_list)
 {
     bool result{false};
     // 有类型 + 无关键词

@@ -43,7 +43,7 @@
 │                          JobScDao                                   │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────────────┐  │
 │  │ JobScTransGuard│  │ CRUD操作       │  │ 分页查询               │  │
-│  │ 事务守卫       │  │ Insert/Delete  │  │ GetListByTypePage      │  │
+│  │ 事务守卫       │  │ Insert/Delete  │  │ Query      │  │
 │  └────────────────┘  │ Update         │  └────────────────────────┘  │
 └───────────────────────────────────��─────────────────────────────────┘
                                    │
@@ -152,7 +152,7 @@ public:
     static JobScResult Update(int64_t rid, const JobScItem& item);
     
     // 分页查询
-    static JobScResult GetListByTypePage(const JobScPageQuery& page_query, 
+    static JobScResult Query(const JobScPageQuery& page_query, 
                                        JobScPageResult& out_result, 
                                        std::vector<JobScItem>& out_items);
     
@@ -202,14 +202,14 @@ public:
 - Insert() - 插入记录
 - Delete() / DeleteByType() - 删除记录
 - Update() - 更新记录
-- GetListByTypePage() - 分页查询
+- Query() - 分页查询
 - GetCountByType() - 获取指定类型记录数
 
 **内部方法**（私有）：
 - BeginTransaction() / CommitTransaction() / RollbackTransaction() - 事务管理
 - GetAllPage() - 查询全部数据
 - GetAllByKeywordPage() - 关键字查询
-- GetListByTypePage() - 按类型查询
+- Query() - 按类型查询
 - GetListByTypeAndKeywordPage() - 按类型和关键字查询
 
 ### 4.5 JobScTransGuard - 事务守卫
@@ -363,12 +363,12 @@ JobScImpl::Add()
 ### 7.2 查询作业流程
 
 ```
-JobScMgr::GetListByTypePage()
+JobScMgr::Query()
     │
     ▼
-JobScImpl::GetListByTypePage()
+JobScImpl::Query()
     │
-    ├──▶ 调用 m_dao.GetListByTypePage()
+    ├──▶ 调用 m_dao.Query()
     │         │
     │         └──▶ JobScDbAccess::QueryPageUniversal()
     │
@@ -471,7 +471,7 @@ query.SetPageSize(10);                   // 每页10条
 // 执行查询
 JobScPageResult page_result;
 std::vector<JobScItem> items;
-auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+auto result = JobScMgr::Query(query, page_result, items);
 
 if (result == JobScResult::Success) {
     std::cout << "总记录数: " << page_result.total_count << std::endl;
@@ -526,7 +526,7 @@ JobScMgr::Add(123456789, item);
 | JobScMgrAddTest | JobScMgr::Add() - 各种作业类型、空参数、大数据 |
 | JobScMgrDeleteTest | JobScMgr::Delete() / DeleteByType() |
 | JobScMgrUpdateTest | JobScMgr::Update() |
-| JobScMgrGetListTest | JobScMgr::GetListByTypePage() - 分页/关键字/排序 |
+| JobScMgrGetListTest | JobScMgr::Query() - 分页/关键字/排序 |
 | JobScMgrIntegrationTest | 增删改查完整流程测试 |
 | JobScMgrEdgeCaseTest | 边界情况测试 |
 | JobScPageResultTest | 分页结果结构体测试 |

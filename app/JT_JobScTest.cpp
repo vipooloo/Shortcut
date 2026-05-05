@@ -90,7 +90,7 @@ TEST_F(JobScPageQueryTest, DefaultConstructor)
 {
     JobScPageQuery query;
     EXPECT_EQ(query.GetKeyword(), "");
-    EXPECT_EQ(query.GetType(), JobScType::None);
+    EXPECT_EQ(query.GetType(), JobScType::All);
     EXPECT_EQ(query.GetOrderType(), JobScOrderType::ASC);
     EXPECT_EQ(query.GetPageIndex(), JOBSC_PAGE_DEFAULT_INDEX);
     EXPECT_EQ(query.GetPageSize(), JOBSC_PAGE_DEFAULT_SIZE);
@@ -133,9 +133,8 @@ TEST_F(JobScPageQueryTest, AllJobScResultValues)
     EXPECT_EQ(static_cast<int32_t>(JobScResult::Success), 0);
     EXPECT_EQ(static_cast<int32_t>(JobScResult::Failed), 1);
     EXPECT_EQ(static_cast<int32_t>(JobScResult::MaxCountReached), 2);
-    EXPECT_EQ(static_cast<int32_t>(JobScResult::NoExist), 3);
-    EXPECT_EQ(static_cast<int32_t>(JobScResult::AlreadyExist), 4);
-    EXPECT_EQ(static_cast<int32_t>(JobScResult::InvalidParam), 5);
+    EXPECT_EQ(static_cast<int32_t>(JobScResult::AlreadyExist), 3);
+    EXPECT_EQ(static_cast<int32_t>(JobScResult::InvalidParam), 4);
 }
 
 TEST_F(JobScPageQueryTest, JobScEventTypeValues)
@@ -382,7 +381,7 @@ class JobScMgrGetListTest : public ::testing::Test
     }
 };
 
-TEST_F(JobScMgrGetListTest, GetListByTypePage)
+TEST_F(JobScMgrGetListTest, Query)
 {
     JobScPageQuery query;
     query.SetType(JobScType::ScanToEmail);
@@ -392,7 +391,7 @@ TEST_F(JobScMgrGetListTest, GetListByTypePage)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
     EXPECT_GE(page_result.total_count, 10U);
     EXPECT_GE(page_result.total_page, 1U);
@@ -411,7 +410,7 @@ TEST_F(JobScMgrGetListTest, GetListWithKeyword)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
@@ -426,7 +425,7 @@ TEST_F(JobScMgrGetListTest, GetListWithDescendingOrder)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
@@ -440,7 +439,7 @@ TEST_F(JobScMgrGetListTest, GetListWithDifferentPageSize)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
     EXPECT_EQ(page_result.page_size, 5U);
 }
@@ -455,7 +454,7 @@ TEST_F(JobScMgrGetListTest, GetListSecondPage)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
@@ -469,7 +468,7 @@ TEST_F(JobScMgrGetListTest, GetListWithNoneType)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
@@ -504,7 +503,7 @@ TEST_F(JobScMgrIntegrationTest, AddUpdateGetListDelete)
     query.SetType(JobScType::ScanToEmail);
     JobScPageResult page_result;
     std::vector<JobScItem> items;
-    auto get_result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto get_result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(get_result, JobScResult::Success);
 
     auto delete_result = JobScMgr::Delete({test_rid});
@@ -521,7 +520,7 @@ TEST_F(JobScMgrIntegrationTest, AddMultipleJobsAndFilterByType)
     query.SetType(JobScType::ScanToFTP);
     JobScPageResult page_result;
     std::vector<JobScItem> items;
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
     EXPECT_GE(page_result.total_count, 1U);
 
@@ -569,7 +568,7 @@ TEST_F(JobScMgrEdgeCaseTest, GetListWithZeroPageSize)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_TRUE(result == JobScResult::InvalidParam || result == JobScResult::Failed);
 }
 
@@ -583,7 +582,7 @@ TEST_F(JobScMgrEdgeCaseTest, GetListWithLargePageIndex)
     JobScPageResult page_result;
     std::vector<JobScItem> items;
 
-    auto result = JobScMgr::GetListByTypePage(query, page_result, items);
+    auto result = JobScMgr::Query(query, page_result, items);
     EXPECT_EQ(result, JobScResult::Success);
 }
 
