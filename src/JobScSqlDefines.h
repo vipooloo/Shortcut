@@ -77,7 +77,6 @@ constexpr char kFieldSettings[] = "settings";
 constexpr char kFieldAddressList[] = "address_list";
 
 static constexpr uint32_t DB_SQL_BUFFER = 1024U;     ///< SQL缓冲区大小
-static constexpr int64_t INVALID_RID = 0;            ///< 无效的主键ID
 static constexpr uint64_t MAX_COUNT_PER_TYPE = 10u;  ///< 每种类型最大数
 
 #endif  // JOBSCSQLDEFINES_H

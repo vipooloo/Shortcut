@@ -21,7 +21,7 @@ class JobScItem
 {
   public:
     JobScItem()
-      : m_rid{-1}
+      : m_rid{INVALID_RID}
       , m_account_id{0}
       , m_job_type{JobScType::None}
       , m_description{""}
@@ -31,7 +31,19 @@ class JobScItem
     ~JobScItem() = default;
     JobScItem(const JobScItem&) = delete;
     JobScItem& operator=(const JobScItem&) = delete;
-    JobScItem& operator=(const JobScItem&&) noexcept = delete;
+    JobScItem& operator=(const JobScItem&& other) noexcept
+    {
+        if (this != &other)
+        {
+            m_rid = other.m_rid;
+            m_account_id = other.m_account_id;
+            m_job_type = other.m_job_type;
+            m_description = std::move(other.m_description);
+            m_settings = std::move(other.m_settings);
+            m_address_list = std::move(other.m_address_list);
+        }
+        return *this;
+    }
     JobScItem(const JobScItem&& other) noexcept
     {
         if (this != &other)

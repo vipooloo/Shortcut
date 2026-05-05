@@ -75,4 +75,9 @@ static constexpr uint32_t JOBSC_PAGE_DEFAULT_INDEX = 0U;
  */
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_SIZE = 10U;
 
+/**
+ * @brief 无效的主键ID
+ */
+static constexpr int64_t INVALID_RID = 0;
+
 #endif  // JOBSCDEFINES_H

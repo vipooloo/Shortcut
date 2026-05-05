@@ -60,9 +60,41 @@ void JobScImpl::Notify(JobScEventType event)
     JOBSC_LOG_INFO("JobScImpl::Notify - event:%d end", static_cast<int32_t>(event));
 }
 
+std::pair<JobScResult, JobScItem> JobScImpl::Add(uint64_t account_id,
+                                                 JobScType type,
+                                                 const std::string& description,
+                                                 const std::vector<uint8_t>& job_settings,
+                                                 const std::vector<uint8_t>& addr_info)
+{
+    JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu type:%d description:%s", account_id, type, description.c_str());
+    std::pair<JobScResult, JobScItem> result{JobScResult::Failed, JobScItem{}};
+    // 参数检查
+    if ((type > JobScType::None) && (type < JobScType::All) && (!description.empty()))
+    {
+        JobScItem item;
+        item.SetAccountId(account_id);
+        item.SetJobType(type);
+        item.SetDescription(description);
+        item.SetSettings(job_settings);
+        item.SetAddressList(addr_info);
+        std::pair<JobScResult, int64_t> add_res = Add(account_id, item);
+        result.first = add_res.first;
+        if (JobScResult::Success == result.first)
+        {
+            item.SetRid(add_res.second);
+            result.second = std::move(item);
+        }
+    }
+    else
+    {
+        JOBSC_LOG_ERROR("JobScImpl::Add - invalid param");
+        result.first = JobScResult::InvalidParam;
+    }
+    return result;
+}
+
 std::pair<JobScResult, int64_t> JobScImpl::Add(uint64_t account_id, const JobScItem& item)
 {
-    JOBSC_LOG_INFO("JobScImpl::Add - account_id:%lu", account_id);
     std::pair<JobScResult, int64_t> result{JobScResult::Failed, INVALID_RID};
 
     JobScType job_type = item.GetJobType();

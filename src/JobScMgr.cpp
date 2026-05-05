@@ -1,9 +1,13 @@
 #include "JobScMgr.h"
 #include "JobScImpl.h"
 
-std::pair<JobScResult, int64_t> JobScMgr::Add(uint64_t account_id, const JobScItem& item)
+std::pair<JobScResult, JobScItem> JobScMgr::Add(uint64_t account_id,
+                                                JobScType type,
+                                                const std::string& description,
+                                                const std::vector<uint8_t>& job_settings,
+                                                const std::vector<uint8_t>& addr_info)
 {
-    return JobScImpl::GetInstance().Add(account_id, item);
+    return JobScImpl::GetInstance().Add(account_id, type, description, job_settings, addr_info);
 }
 
 JobScResult JobScMgr::Delete(const std::vector<int64_t>& rids)

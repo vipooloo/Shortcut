@@ -131,7 +131,11 @@ class JobScMgr
 {
 public:
     // 添加作业
-    static std::pair<JobScResult, int64_t> Add(uint64_t account_id, const JobScItem& item);
+    static std::pair<JobScResult, JobScItem> Add(uint64_t account_id,
+                                                 JobScType type,
+                                                 const std::string& description,
+                                                 const std::vector<uint8_t>& job_settings,
+                                                 const std::vector<uint8_t>& addr_info);
     
     // 删除作业
     static JobScResult Delete(const std::vector<int64_t>& rids);

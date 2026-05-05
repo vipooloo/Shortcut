@@ -30,6 +30,22 @@ class JobScImpl
     static JobScImpl& GetInstance();
 
     /**
+     * @brief 作业观察者回调函数类型
+     * 
+     * @param account_id 账号ID
+     * @param type 类型
+     * @param description  描述信息
+     * @param job_settings 作业参数
+     * @param addr_info    地址参数
+     * @return std::pair<JobScResult, JobScItem> 
+     */
+    std::pair<JobScResult, JobScItem> Add(uint64_t account_id,
+                                          JobScType type,
+                                          const std::string& description,
+                                          const std::vector<uint8_t>& job_settings,
+                                          const std::vector<uint8_t>& addr_info);
+
+    /**
      * @brief 添加作业
      * @param account_id 账号ID
      * @param item 作业项
@@ -76,7 +92,7 @@ class JobScImpl
      * @param observer 观察者回调函数
      */
     void AddObserver(const JobScObserver& observer);
-    
+
     /**
      * @brief 添加作业观察者
      * @param observer 观察者回调函数

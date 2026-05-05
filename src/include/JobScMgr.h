@@ -21,12 +21,20 @@ class JobScMgr
 {
   public:
     /**
-     * @brief 添加作业
+     * @brief 作业观察者回调函数类型
+     * 
      * @param account_id 账号ID
-     * @param item 作业项
-     * @return 操作结果和新插入记录ID
+     * @param type 类型
+     * @param description  描述信息
+     * @param job_settings 作业参数
+     * @param addr_info    地址参数
+     * @return std::pair<JobScResult, JobScItem> 
      */
-    static std::pair<JobScResult, int64_t> Add(uint64_t account_id, const JobScItem& item);
+    static std::pair<JobScResult, JobScItem> Add(uint64_t account_id,
+                                                 JobScType type,
+                                                 const std::string& description,
+                                                 const std::vector<uint8_t>& job_settings,
+                                                 const std::vector<uint8_t>& addr_info);
 
     /**
      * @brief 删除作业
