@@ -13,5 +13,5 @@ target_include_directories(Myapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(Myapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/include)
 target_include_directories(Myapp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src/storage)
 # 添加链接库
-target_link_libraries(Myapp ShortcutMgr)
+target_link_libraries(Myapp ShortcutMgr gtest gmock)
 
