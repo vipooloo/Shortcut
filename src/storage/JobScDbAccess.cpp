@@ -357,13 +357,20 @@ bool JobScDbAccess::QueryPageUniversal(const std::string& sql_main,
                                        JobScRowList& out_rows)
 {
     bool result{false};
-    if (m_db_ptr && (!sql_main.empty()) && (!page_query.GetSortField().empty()) && out_rows.empty())
+    bool sql_valid{!sql_main.empty()};
+    bool sort_field_valid{!page_query.GetSortField().empty()};
+    bool result_valid{out_rows.empty()};
+    if (sql_valid && sort_field_valid && result_valid)
     {
         uint32_t total = 0;
         if (QueryTotalCount(sql_main, params, total))
         {
             result = QueryPageData(sql_main, params, page_query, total, out_result, out_rows);
         }
+    }
+    else
+    {
+        JOBSC_LOG_ERROR("JobScDbAccess::QueryPageUniversal - invalid params %d %d %d", sql_valid, sort_field_valid, result_valid);
     }
     return result;
 }

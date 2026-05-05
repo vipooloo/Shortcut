@@ -26,7 +26,7 @@ enum class JobScOrderType : int32_t
  */
 typedef struct JobScPageResult
 {
-    uint32_t total_count;   ///< 总记录数
+    uint32_t total_count;  ///< 总记录数
     uint32_t total_page;   ///< 总页数
     uint32_t page_index;   ///< 当前页码
     uint32_t page_size;    ///< 每页大小
@@ -67,7 +67,9 @@ using JobScObserver = std::function<void(JobScEventType event)>;
 /**
  * @brief 默认分页起始页码
  */
+
 static constexpr uint32_t JOBSC_PAGE_DEFAULT_INDEX = 0U;
+
 /**
  * @brief 默认分页每页大小
  */

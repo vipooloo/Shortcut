@@ -36,48 +36,57 @@ class JobScValue
      * @brief 默认构造函数
      */
     JobScValue();
+
     /**
      * @brief 整型构造函数
      * @param value 整数值
      */
     explicit JobScValue(int64_t value);
+
     /**
      * @brief 无符号整型构造函数
      * @param value 无符号整数值
      */
     explicit JobScValue(uint64_t value);
+
     /**
      * @brief 字符串构造函数
      * @param value 字符串值
      */
     explicit JobScValue(const std::string& value);
+
     /**
      * @brief Blob构造函数
      * @param value 二进制数据
      */
     JobScValue(const std::vector<uint8_t>& value);
+
     /**
      * @brief Blob构造函数
      * @param data 数据指针
      * @param len 数据长度
      */
     JobScValue(const uint8_t* data, uint32_t len);
+
     /**
      * @brief 拷贝构造函数
      * @param other 源对象
      */
     JobScValue(const JobScValue& other);
+
     /**
      * @brief 移动构造函数
      * @param other 源对象
      */
     JobScValue(JobScValue&& other) noexcept;
+
     /**
      * @brief 拷贝赋值运算符
      * @param other 源对象
      * @return 自身引用
      */
     JobScValue& operator=(const JobScValue& other);
+
     /**
      * @brief 移动赋值运算符
      * @param other 源对象
@@ -111,30 +120,35 @@ class JobScValue
      * @return 32位整数
      */
     int32_t ToInt32(bool& ok) const;
+
     /**
      * @brief 转换为32位无符号整数
      * @param ok 输出参数，是否转换成功
      * @return 32位无符号整数
      */
     uint32_t ToUint32(bool& ok) const;
+
     /**
      * @brief 转换为64位整数
      * @param ok 输出参数，是否转换成功
      * @return 64位整数
      */
     int64_t ToInt64(bool& ok) const;
+
     /**
      * @brief 转换为64位无符号整数
      * @param ok 输出参数，是否转换成功
      * @return 64位无符号整数
      */
     uint64_t ToUint64(bool& ok) const;
+
     /**
      * @brief 转换为字符串
      * @param ok 输出参数，是否转换成功
      * @return 字符串
      */
     std::string ToString(bool& ok) const;
+
     /**
      * @brief 转换为二进制数据
      * @return 二进制数据
@@ -150,8 +164,8 @@ class JobScValue
     operator const std::vector<uint8_t>&() const;
 
   private:
-    JobScValType m_type;                    ///< 值类型
-    std::vector<uint8_t> m_data;            ///< 存储的数据
+    JobScValType m_type;          ///< 值类型
+    std::vector<uint8_t> m_data;  ///< 存储的数据
 };
 
 #endif  // JOBSCVALUE_H

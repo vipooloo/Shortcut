@@ -29,6 +29,19 @@ void JobScImpl::AddObserver(const JobScObserver& observer)
     }
 }
 
+void JobScImpl::RemoveObserver(const JobScObserver& observer)
+{
+    using FuncPtr = void (*)(JobScEventType event);
+    if (observer)
+    {
+        std::lock_guard<std::mutex> lock(m_observers_mutex);
+        m_observers.erase(std::remove_if(m_observers.begin(), m_observers.end(), [&observer](const JobScObserver& ob) {
+                              return ob.target<FuncPtr>() == observer.target<FuncPtr>();
+                          }),
+                          m_observers.end());
+    }
+}
+
 void JobScImpl::Notify(JobScEventType event)
 {
     JOBSC_LOG_INFO("JobScImpl::Notify - event:%d start", static_cast<int32_t>(event));

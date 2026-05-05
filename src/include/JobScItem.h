@@ -53,6 +53,7 @@ class JobScItem
     {
         return m_rid;
     }
+
     /**
      * @brief 获取账号ID
      * @return 账号ID
@@ -61,6 +62,7 @@ class JobScItem
     {
         return m_account_id;
     }
+
     /**
      * @brief 获取作业类型
      * @return 作业类型
@@ -69,6 +71,7 @@ class JobScItem
     {
         return m_job_type;
     }
+
     /**
      * @brief 获取描述
      * @return 作业描述
@@ -77,6 +80,7 @@ class JobScItem
     {
         return m_description;
     }
+
     /**
      * @brief 获取设置
      * @return 作业设置
@@ -85,6 +89,7 @@ class JobScItem
     {
         return m_settings;
     }
+
     /**
      * @brief 获取地址列表
      * @return 地址列表
@@ -101,6 +106,7 @@ class JobScItem
     {
         m_rid = rid;
     }
+
     /**
      * @brief 设置账号ID
      * @param account_id 账号ID
@@ -109,6 +115,7 @@ class JobScItem
     {
         m_account_id = account_id;
     }
+
     /**
      * @brief 设置作业类型
      * @param job_type 作业类型
@@ -117,6 +124,7 @@ class JobScItem
     {
         m_job_type = job_type;
     }
+
     /**
      * @brief 设置描述
      * @param description 作业描述
@@ -125,6 +133,7 @@ class JobScItem
     {
         m_description = description;
     }
+
     /**
      * @brief 设置作业设置
      * @param settings 作业设置
@@ -133,6 +142,7 @@ class JobScItem
     {
         m_settings = settings;
     }
+
     /**
      * @brief 设置地址列表
      * @param address_list 地址列表

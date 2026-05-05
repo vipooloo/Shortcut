@@ -33,3 +33,8 @@ void JobScMgr::AddObserver(const JobScObserver& observer)
 {
     JobScImpl::GetInstance().AddObserver(observer);
 }
+
+void JobScMgr::RemoveObserver(const JobScObserver& observer)
+{
+    JobScImpl::GetInstance().RemoveObserver(observer);
+}

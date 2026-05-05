@@ -57,6 +57,9 @@
         "typeinfo": "cpp",
         "mutex": "cpp",
         "condition_variable": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "any": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp"
     }
 }

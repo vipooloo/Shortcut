@@ -28,6 +28,7 @@ class JobScImpl
      * @return 单例引用
      */
     static JobScImpl& GetInstance();
+
     /**
      * @brief 添加作业
      * @param account_id 账号ID
@@ -35,18 +36,21 @@ class JobScImpl
      * @return 操作结果和新插入记录ID
      */
     std::pair<JobScResult, int64_t> Add(uint64_t account_id, const JobScItem& item);
+
     /**
      * @brief 删除作业
      * @param rids 作业记录ID列表
      * @return 操作结果
      */
     JobScResult Delete(const std::vector<int64_t>& rids);
+
     /**
      * @brief 按类型删除作业
      * @param types 作业类型列表
      * @return 操作结果
      */
     JobScResult DeleteByType(const std::vector<JobScType>& types);
+
     /**
      * @brief 更新作业
      * @param rid 作业记录ID
@@ -54,6 +58,7 @@ class JobScImpl
      * @return 操作结果
      */
     JobScResult Update(int64_t rid, const JobScItem& item);
+
     /**
      * @brief 分页查询作业列表
      * @param page_query 分页查询条件
@@ -65,11 +70,18 @@ class JobScImpl
         const JobScPageQuery& page_query,
         JobScPageResult& out_result,
         std::vector<JobScItem>& out_items);
+
     /**
      * @brief 添加作业观察者
      * @param observer 观察者回调函数
      */
     void AddObserver(const JobScObserver& observer);
+    
+    /**
+     * @brief 添加作业观察者
+     * @param observer 观察者回调函数
+     */
+    void RemoveObserver(const JobScObserver& observer);
 
   private:
     /**
@@ -94,11 +106,11 @@ class JobScImpl
     std::vector<JobScItem> CovertrToItems(const JobScRowList& rows);
 
   private:
-    std::mutex m_service_mutex;      ///< 服务互斥锁
-    JobScInitializer m_initializer; ///< 数据库初始化器
-    JobScDao m_dao;                  ///< 数据访问对象
-    std::mutex m_observers_mutex;   ///< 观察者列表互斥锁
-    std::list<JobScObserver> m_observers; ///< 观察者列表
+    std::mutex m_service_mutex;            ///< 服务互斥锁
+    JobScInitializer m_initializer;        ///< 数据库初始化器
+    JobScDao m_dao;                        ///< 数据访问对象
+    std::mutex m_observers_mutex;          ///< 观察者列表互斥锁
+    std::list<JobScObserver> m_observers;  ///< 观察者列表
 };
 
 #endif  // JOBSCIMPL_H

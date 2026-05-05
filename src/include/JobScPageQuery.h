@@ -37,6 +37,7 @@ class JobScPageQuery
     {
         return m_keyword;
     }
+
     /**
      * @brief 设置关键字
      * @param keyword 关键字
@@ -45,6 +46,7 @@ class JobScPageQuery
     {
         m_keyword = keyword;
     }
+
     /**
      * @brief 获取作业类型
      * @return 作业类型
@@ -53,6 +55,7 @@ class JobScPageQuery
     {
         return m_type;
     }
+
     /**
      * @brief 设置作业类型
      * @param type 作业类型
@@ -61,6 +64,7 @@ class JobScPageQuery
     {
         m_type = type;
     }
+
     /**
      * @brief 获取排序类型
      * @return 排序类型
@@ -69,6 +73,7 @@ class JobScPageQuery
     {
         return m_order_type;
     }
+
     /**
      * @brief 设置排序类型
      * @param order_type 排序类型
@@ -77,6 +82,7 @@ class JobScPageQuery
     {
         m_order_type = order_type;
     }
+
     /**
      * @brief 获取页码
      * @return 页码
@@ -85,6 +91,7 @@ class JobScPageQuery
     {
         return m_page_index;
     }
+
     /**
      * @brief 设置页码
      * @param page_index 页码
@@ -93,6 +100,7 @@ class JobScPageQuery
     {
         m_page_index = page_index;
     }
+
     /**
      * @brief 获取每页大小
      * @return 每页大小
@@ -101,6 +109,7 @@ class JobScPageQuery
     {
         return m_page_size;
     }
+
     /**
      * @brief 设置每页大小
      * @param page_size 每页大小
@@ -111,11 +120,11 @@ class JobScPageQuery
     }
 
   private:
-    std::string m_keyword;          ///< 关键字
-    JobScType m_type;               ///< 作业类型
-    JobScOrderType m_order_type;    ///< 排序类型
-    uint32_t m_page_index;          ///< 页码
-    uint32_t m_page_size;           ///< 每页大小
+    std::string m_keyword;        ///< 关键字
+    JobScType m_type;             ///< 作业类型
+    JobScOrderType m_order_type;  ///< 排序类型
+    uint32_t m_page_index;        ///< 页码
+    uint32_t m_page_size;         ///< 每页大小
 };
 
 #endif  // JOBSCPAGEQUERY_H
