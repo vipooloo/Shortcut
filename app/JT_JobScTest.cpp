@@ -590,14 +590,14 @@ TEST_F(JobScMgrEdgeCaseTest, DeleteEmptyList)
 {
     std::vector<int64_t> empty_list;
     auto result = JobScMgr::Delete(empty_list);
-    EXPECT_EQ(result, JobScResult::Success);
+    EXPECT_EQ(result, JobScResult::InvalidParam);
 }
 
 TEST_F(JobScMgrEdgeCaseTest, DeleteByEmptyTypeList)
 {
     std::vector<JobScType> empty_types;
     auto result = JobScMgr::DeleteByType(empty_types);
-    EXPECT_EQ(result, JobScResult::Success);
+    EXPECT_EQ(result, JobScResult::InvalidParam);
 }
 
 TEST_F(JobScMgrEdgeCaseTest, UpdateWithEmptySettings)

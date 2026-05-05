@@ -132,25 +132,32 @@ JobScResult JobScImpl::Delete(const std::vector<int64_t>& rids)
     JOBSC_LOG_INFO("JobScImpl::Delete - rids size:%zu", rids.size());
     JobScResult result{JobScResult::Failed};
 
-    std::lock_guard<std::mutex> lock(m_service_mutex);
-    JobScDao::JobScTransGuard trans(m_dao);
-
-    bool all_success{true};
-    for (int64_t rid : rids)
+    if (!rids.empty())
     {
-        if (!m_dao.Delete(rid))
+        std::lock_guard<std::mutex> lock(m_service_mutex);
+        JobScDao::JobScTransGuard trans(m_dao);
+
+        bool all_success{true};
+        for (int64_t rid : rids)
         {
-            JOBSC_LOG_ERROR("JobScImpl::Delete - failed to delete rid:%ld", rid);
-            all_success = false;
-            break;
+            if (!m_dao.Delete(rid))
+            {
+                JOBSC_LOG_ERROR("JobScImpl::Delete - failed to delete rid:%ld", rid);
+                all_success = false;
+                break;
+            }
+        }
+        if (all_success)
+        {
+            trans.Commit();
+            result = JobScResult::Success;
+            JOBSC_LOG_INFO("JobScImpl::Delete - success");
+            Notify(JobScEventType::Deleted);
         }
     }
-    if (all_success)
+    else
     {
-        trans.Commit();
-        result = JobScResult::Success;
-        JOBSC_LOG_INFO("JobScImpl::Delete - success");
-        Notify(JobScEventType::Deleted);
+        result = JobScResult::InvalidParam;
     }
 
     return result;
@@ -160,25 +167,36 @@ JobScResult JobScImpl::DeleteByType(const std::vector<JobScType>& types)
 {
     JobScResult result{JobScResult::Failed};
     JOBSC_LOG_INFO("JobScImpl::DeleteByType - types size:%zu", types.size());
-    std::lock_guard<std::mutex> lock(m_service_mutex);
-    JobScDao::JobScTransGuard trans(m_dao);
+    bool check_result = std::all_of(types.cbegin(), types.cend(), [&types](JobScType type) {
+        return ((type > JobScType::None) && (type < JobScType::All));
+    });
 
-    bool all_success{true};
-    for (JobScType type : types)
+    if (!types.empty() && check_result)
     {
-        if (!m_dao.DeleteByType(type))
+        std::lock_guard<std::mutex> lock(m_service_mutex);
+        JobScDao::JobScTransGuard trans(m_dao);
+
+        bool all_success{true};
+        for (JobScType type : types)
         {
-            JOBSC_LOG_ERROR("JobScImpl::DeleteByType - failed to delete type:%d", type);
-            all_success = false;
-            break;
+            if (!m_dao.DeleteByType(type))
+            {
+                JOBSC_LOG_ERROR("JobScImpl::DeleteByType - failed to delete type:%d", type);
+                all_success = false;
+                break;
+            }
+        }
+        if (all_success)
+        {
+            trans.Commit();
+            result = JobScResult::Success;
+            JOBSC_LOG_INFO("JobScImpl::Delete - success");
+            Notify(JobScEventType::Deleted);
         }
     }
-    if (all_success)
+    else
     {
-        trans.Commit();
-        result = JobScResult::Success;
-        JOBSC_LOG_INFO("JobScImpl::Delete - success");
-        Notify(JobScEventType::Deleted);
+        result = JobScResult::InvalidParam;
     }
 
     return result;
